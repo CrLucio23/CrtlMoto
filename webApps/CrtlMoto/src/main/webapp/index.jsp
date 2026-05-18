@@ -235,7 +235,6 @@
         if (modal) {
             modal.style.display = "none";
             document.body.classList.remove("modal-open");
-            localStorage.setItem("crtlmoto_newsletter_closed", "true");
         }
     }
 
