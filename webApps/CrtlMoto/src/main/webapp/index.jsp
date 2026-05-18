@@ -17,11 +17,14 @@
     <link rel="icon" type="image/png" href="<%= request.getContextPath() %>/images/favicon.png">
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/base.css">
 </head>
-<body class="modal-open">
 <%
     Boolean mostraNewsletter = (Boolean) request.getAttribute("mostraNewsletter");
-    if(Boolean.TRUE.equals(mostraNewsletter)){
+%>
 
+<body class="<%= Boolean.TRUE.equals(mostraNewsletter) ? "modal-open" : "" %>">
+
+<%
+    if(Boolean.TRUE.equals(mostraNewsletter)){
 %>
 <div id="newsletterModal" class="newsletter-modal-overlay">
     <div class="newsletter-modal">
