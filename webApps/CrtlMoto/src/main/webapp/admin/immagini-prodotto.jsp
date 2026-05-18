@@ -39,11 +39,12 @@
                     <input type="text" name="urlImmagine" required>
                 </div>
 
-                <div class="form-group">
-                    <label>
+                <div class="form-group" style="display:flex; align-items:center; gap:14px; padding: 12px 0;">
+                    <label class = "toggle-switch">
                         <input type="checkbox" name="principale" value="true">
-                        Imposta come immagine principale
+                        <span class = "toogle-slider"> </span>
                     </label>
+                    <span style="font-weight: 600; font-size: 15px;"> Imposta come immagine principale </span>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Aggiungi immagine</button>
