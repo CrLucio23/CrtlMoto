@@ -41,6 +41,7 @@ public class NewsletterServlet extends HttpServlet {
                 }
 
                 newsletterDAO.save(newsletter);
+                request.getSession().setAttribute("newsletterIscritta", true);
             }
 
             request.getSession().setAttribute("messaggio", "Iscrizione newsletter completata");

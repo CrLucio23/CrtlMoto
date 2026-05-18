@@ -18,7 +18,11 @@
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/base.css">
 </head>
 <body class="modal-open">
+<%
+    Boolean mostraNewsletter = (Boolean) request.getAttribute("mostraNewsletter");
+    if(Boolean.TRUE.equals(mostraNewsletter)){
 
+%>
 <div id="newsletterModal" class="newsletter-modal-overlay">
     <div class="newsletter-modal">
         <div class="newsletter-modal-left">
@@ -43,7 +47,7 @@
         </div>
     </div>
 </div>
-
+<% } %>
 <div class="page-blur-wrapper">
     <jsp:include page="/header.jsp" />
 
@@ -237,17 +241,6 @@
             document.body.classList.remove("modal-open");
         }
     }
-
-    window.addEventListener("load", function () {
-        const alreadyClosed = localStorage.getItem("crtlmoto_newsletter_closed");
-        if (alreadyClosed === "true") {
-            const modal = document.getElementById("newsletterModal");
-            if (modal) {
-                modal.style.display = "none";
-                document.body.classList.remove("modal-open");
-            }
-        }
-    });
 </script>
 
 </body>
