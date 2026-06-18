@@ -1,13 +1,14 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="model.Prodotto" %>
 <%@ page import="model.ImmagineProdotto" %>
+<%@ page import="utils.ImageUtils" %>
 
 <%
     Prodotto prodotto = (Prodotto) request.getAttribute("prodotto");
     String img = request.getContextPath() + "/images/no-image.png";
 
     if (prodotto != null && prodotto.getImmagini() != null && !prodotto.getImmagini().isEmpty()) {
-        img = prodotto.getImmagini().get(0).getUrlImmagine();
+        img = ImageUtils.resolve(request, prodotto.getImmagini().get(0).getUrlImmagine());
     }
 %>
 
@@ -44,7 +45,7 @@
                     <% for (int k = 0; k < immagini.size(); k++) { %>
                     <div class="product-thumb">
                         <img
-                                src="<%= immagini.get(k).getUrlImmagine() %>"
+                                src="<%= ImageUtils.resolve(request, immagini.get(k).getUrlImmagine()) %>"
                                 alt="thumb"
                                 onclick="setImage(<%= k %>)">
                     </div>
@@ -109,7 +110,7 @@
             for (int k = 0; k < prodotto.getImmagini().size(); k++) {
                 ImmagineProdotto im = prodotto.getImmagini().get(k);
         %>
-        "<%= im.getUrlImmagine() %>"<%= k < prodotto.getImmagini().size() - 1 ? "," : "" %>
+        "<%= ImageUtils.resolve(request, im.getUrlImmagine()) %>"<%= k < prodotto.getImmagini().size() - 1 ? "," : "" %>
         <%  }
         } %>
     ];

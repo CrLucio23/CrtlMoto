@@ -51,7 +51,12 @@ public class LoginServlet extends HttpServlet {
                 return;
             }
 
-            HttpSession session = request.getSession();
+            HttpSession oldSession = request.getSession(false);
+            if (oldSession != null) {
+                oldSession.invalidate();
+            }
+
+            HttpSession session = request.getSession(true);
             session.setAttribute("utente", utente);
 
             response.sendRedirect(request.getContextPath() + "/");

@@ -85,7 +85,17 @@
 
       <div style="margin-top:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px;">
         <div class="new-price">Totale: € <%= totale %></div>
-        <a class="btn btn-primary" href="<%= request.getContextPath() %>/checkout">Procedi al checkout</a>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+          <form action="<%= request.getContextPath() %>/carrello" method="post">
+            <input type="hidden" name="action" value="clear">
+            <button type="submit"
+                    class="btn btn-dark"
+                    onclick="return confirm('Vuoi svuotare tutto il carrello?')">
+              Svuota carrello
+            </button>
+          </form>
+          <a class="btn btn-primary" href="<%= request.getContextPath() %>/checkout">Procedi al checkout</a>
+        </div>
       </div>
     </div>
     <%

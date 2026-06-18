@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.ImmagineProdotto;
+import utils.ValidationUtils;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -38,9 +39,16 @@ public class AdminImmaginiProdottoServlet extends HttpServlet {
 
         try {
             if ("add".equalsIgnoreCase(action)) {
+                String urlImmagine = ValidationUtils.clean(request.getParameter("urlImmagine"));
+                Integer idProdotto = ValidationUtils.parseInteger(request.getParameter("idProdotto"));
+                if (idProdotto == null || idProdotto <= 0 || !ValidationUtils.isValidImageUrl(urlImmagine)) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "URL immagine non valido");
+                    return;
+                }
+
                 ImmagineProdotto img = new ImmagineProdotto();
-                img.setUrlImmagine(request.getParameter("urlImmagine"));
-                img.setIdProdotto(Integer.parseInt(request.getParameter("idProdotto")));
+                img.setUrlImmagine(urlImmagine);
+                img.setIdProdotto(idProdotto);
                 img.setPrincipale("true".equalsIgnoreCase(request.getParameter("principale")));
 
                 if (img.isPrincipale()) {

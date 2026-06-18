@@ -50,6 +50,12 @@ public class CarrelloServlet extends HttpServlet {
         String quantitaParam = request.getParameter("quantita");
 
         try {
+            if ("clear".equalsIgnoreCase(action)) {
+                carrelloDAO.clearCart(utente.getIdUtente());
+                response.sendRedirect(request.getContextPath() + "/carrello");
+                return;
+            }
+
             int idProdotto = Integer.parseInt(idProdottoParam);
             int quantita = (quantitaParam != null && !quantitaParam.isBlank())
                     ? Integer.parseInt(quantitaParam)

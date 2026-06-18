@@ -2,6 +2,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="model.Prodotto" %>
 <%@ page import="model.ImmagineProdotto" %>
+<%@ page import="utils.ImageUtils" %>
 
 <%
     Prodotto prodotto = (Prodotto) request.getAttribute("prodotto");
@@ -58,7 +59,7 @@
             %>
             <div class="product-card">
                 <div class="product-card-image">
-                    <img src="<%= img.getUrlImmagine() %>" alt="Immagine prodotto">
+                    <img src="<%= ImageUtils.resolve(request, img.getUrlImmagine()) %>" alt="Immagine prodotto">
                 </div>
 
                 <div class="product-card-body">

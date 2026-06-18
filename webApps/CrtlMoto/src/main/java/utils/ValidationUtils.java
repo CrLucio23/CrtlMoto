@@ -1,6 +1,8 @@
 package utils;
 
 import java.math.BigDecimal;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
 public class ValidationUtils {
@@ -78,5 +80,30 @@ public class ValidationUtils {
 
     public static boolean isValidYear(Integer year) {
         return year == null || (year >= 1900 && year <= 2100);
+    }
+
+    public static boolean isValidImageUrl(String url) {
+        if (isNullOrBlank(url) || url.length() > 500) {
+            return false;
+        }
+
+        try {
+            URI uri = new URI(url.trim());
+            String scheme = uri.getScheme();
+            String path = uri.getPath() != null ? uri.getPath().toLowerCase() : "";
+
+            boolean allowedScheme = scheme == null
+                    || "https".equalsIgnoreCase(scheme)
+                    || "http".equalsIgnoreCase(scheme);
+            boolean allowedExtension = path.endsWith(".jpg")
+                    || path.endsWith(".jpeg")
+                    || path.endsWith(".png")
+                    || path.endsWith(".webp")
+                    || path.endsWith(".gif");
+
+            return allowedScheme && allowedExtension && !url.contains("\"") && !url.contains("'");
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 }

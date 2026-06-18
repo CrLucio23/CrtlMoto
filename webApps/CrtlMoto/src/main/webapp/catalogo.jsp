@@ -2,6 +2,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="model.Prodotto" %>
 <%@ page import="model.Categoria" %>
+<%@ page import="utils.ImageUtils" %>
 
 <%
   List<Prodotto> prodotti = (List<Prodotto>) request.getAttribute("prodotti");
@@ -66,7 +67,7 @@
           for (Prodotto p : prodotti) {
             String img = request.getContextPath() + "/images/no-image.png";
             if (p.getImmagini() != null && !p.getImmagini().isEmpty()) {
-              img = p.getImmagini().get(0).getUrlImmagine();
+              img = ImageUtils.resolve(request, p.getImmagini().get(0).getUrlImmagine());
             }
       %>
       <div class="product-card">

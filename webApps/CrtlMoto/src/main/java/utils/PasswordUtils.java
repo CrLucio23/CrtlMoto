@@ -23,6 +23,9 @@ public class PasswordUtils {
     }
 
     public static boolean checkPassword(String rawPassword, String hashedPassword) {
-        return hashPassword(rawPassword).equals(hashedPassword);
+        return MessageDigest.isEqual(
+                hashPassword(rawPassword).getBytes(StandardCharsets.UTF_8),
+                hashedPassword.getBytes(StandardCharsets.UTF_8)
+        );
     }
 }

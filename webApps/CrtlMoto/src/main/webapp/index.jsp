@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="model.Prodotto" %>
+<%@ page import="utils.ImageUtils" %>
 <%@ page import="model.Categoria" %>
 
 <%
@@ -127,7 +128,7 @@
                         for (Prodotto p : ultimiProdotti) {
                             String img = request.getContextPath() + "/images/no-image.png";
                             if (p.getImmagini() != null && !p.getImmagini().isEmpty()) {
-                                img = p.getImmagini().get(0).getUrlImmagine();
+                                img = ImageUtils.resolve(request, p.getImmagini().get(0).getUrlImmagine());
                             }
                 %>
                 <div class="product-card">
@@ -193,7 +194,7 @@
                         for (Prodotto p : prodottiScontati) {
                             String img = request.getContextPath() + "/images/no-image.png";
                             if (p.getImmagini() != null && !p.getImmagini().isEmpty()) {
-                                img = p.getImmagini().get(0).getUrlImmagine();
+                                img = ImageUtils.resolve(request, p.getImmagini().get(0).getUrlImmagine());
                             }
                 %>
                 <div class="product-card">
