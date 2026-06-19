@@ -32,7 +32,7 @@
       <div class="alert-error"><%= request.getAttribute("errore") %></div>
       <% } %>
 
-      <form action="<%= request.getContextPath() %>/admin/prodotti" method="post">
+      <form action="<%= request.getContextPath() %>/admin/prodotti" method="post" enctype="multipart/form-data">
         <input type="hidden" name="action" value="<%= modifica ? "update" : "save" %>">
         <% if (modifica) { %>
         <input type="hidden" name="id" value="<%= prodotto.getIdProdotto() %>">
@@ -76,6 +76,11 @@
         <div class="form-group">
           <label>Compatibilità</label>
           <textarea name="compatibilita" rows="3"><%= modifica && prodotto.getCompatibilita() != null ? prodotto.getCompatibilita() : "" %></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Foto prodotto</label>
+          <input type="file" name="immagine" accept="image/png,image/jpeg,image/webp,image/gif">
         </div>
 
         <div class="form-group">

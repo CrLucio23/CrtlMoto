@@ -1,12 +1,16 @@
 package control;
 
 import dao.CategoriaDAO;
+import dao.ImmagineProdottoDAO;
 import dao.MarcaDAO;
 import dao.ProdottoDAO;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+import model.ImmagineProdotto;
 import model.Prodotto;
+import utils.ImageUploadUtils;
 import utils.ValidationUtils;
 
 import java.io.IOException;
@@ -14,9 +18,15 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 
 @WebServlet("/admin/prodotti")
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 5 * 1024 * 1024,
+        maxRequestSize = 6 * 1024 * 1024
+)
 public class AdminProdottiServlet extends HttpServlet {
 
     private final ProdottoDAO prodottoDAO = new ProdottoDAO();
+    private final ImmagineProdottoDAO immagineProdottoDAO = new ImmagineProdottoDAO();
     private final CategoriaDAO categoriaDAO = new CategoriaDAO();
     private final MarcaDAO marcaDAO = new MarcaDAO();
 
@@ -84,6 +94,7 @@ public class AdminProdottiServlet extends HttpServlet {
             String compatibilita = ValidationUtils.clean(request.getParameter("compatibilita"));
             Integer idCategoria = ValidationUtils.parseInteger(request.getParameter("idCategoria"));
             Integer idMarca = ValidationUtils.parseInteger(request.getParameter("idMarca"));
+            Part immaginePart = request.getPart("immagine");
 
             if (ValidationUtils.isNullOrBlank(nomeProdotto)) {
                 request.setAttribute("errore", "Il nome prodotto è obbligatorio.");
@@ -115,6 +126,12 @@ public class AdminProdottiServlet extends HttpServlet {
                 return;
             }
 
+            if (!ImageUploadUtils.isValidProductImage(immaginePart)) {
+                request.setAttribute("errore", "La foto prodotto deve essere un'immagine valida: JPG, PNG, WEBP o GIF.");
+                reloadFormData(request, response);
+                return;
+            }
+
             Prodotto p = new Prodotto();
             p.setNomeProdotto(nomeProdotto);
             p.setDescrizione(descrizione);
@@ -136,8 +153,10 @@ public class AdminProdottiServlet extends HttpServlet {
 
                 p.setIdProdotto(id);
                 prodottoDAO.update(p);
+                saveMainImageIfPresent(immaginePart, id);
             } else {
-                prodottoDAO.save(p);
+                int idProdotto = prodottoDAO.save(p);
+                saveMainImageIfPresent(immaginePart, idProdotto);
             }
 
             response.sendRedirect(request.getContextPath() + "/admin/prodotti");
@@ -152,5 +171,24 @@ public class AdminProdottiServlet extends HttpServlet {
         request.setAttribute("categorie", categoriaDAO.findAll());
         request.setAttribute("marche", marcaDAO.findAll());
         request.getRequestDispatcher("/admin/prodotto-form.jsp").forward(request, response);
+    }
+
+    private void saveMainImageIfPresent(Part immaginePart, int idProdotto) throws IOException, SQLException {
+        if (!ImageUploadUtils.hasUploadedFile(immaginePart)) {
+            return;
+        }
+
+        String urlImmagine = ImageUploadUtils.saveProductImage(getServletContext(), immaginePart, idProdotto);
+        if (urlImmagine == null) {
+            throw new IOException("Immagine prodotto non valida");
+        }
+
+        ImmagineProdotto img = new ImmagineProdotto();
+        img.setUrlImmagine(urlImmagine);
+        img.setIdProdotto(idProdotto);
+        img.setPrincipale(true);
+
+        immagineProdottoDAO.resetMainImage(idProdotto);
+        immagineProdottoDAO.save(img);
     }
 }

@@ -1,10 +1,13 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="model.Prodotto" %>
 <%@ page import="model.ImmagineProdotto" %>
+<%@ page import="model.Utente" %>
 <%@ page import="utils.ImageUtils" %>
 
 <%
     Prodotto prodotto = (Prodotto) request.getAttribute("prodotto");
+    Utente utente = (Utente) session.getAttribute("utente");
+    boolean admin = utente != null && "admin".equalsIgnoreCase(utente.getRuolo());
     String img = request.getContextPath() + "/images/no-image.png";
 
     if (prodotto != null && prodotto.getImmagini() != null && !prodotto.getImmagini().isEmpty()) {
@@ -86,6 +89,9 @@
                     <span class="new-price">€ <%= prodotto.getPrezzoScontato() %></span>
                 </div>
 
+                <% if (admin) { %>
+                <a class="btn btn-primary" href="<%= request.getContextPath() %>/admin/prodotti?action=edit&id=<%= prodotto.getIdProdotto() %>">Modifica prodotto</a>
+                <% } else { %>
                 <form action="<%= request.getContextPath() %>/carrello" method="post">
                     <input type="hidden" name="action" value="add">
                     <input type="hidden" name="idProdotto" value="<%= prodotto.getIdProdotto() %>">
@@ -97,6 +103,7 @@
 
                     <button type="submit" class="btn btn-primary">Aggiungi al carrello</button>
                 </form>
+                <% } %>
             </div>
         </div>
         <% } %>

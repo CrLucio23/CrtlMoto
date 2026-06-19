@@ -31,21 +31,20 @@
         <div class="form-box" style="max-width:900px;">
             <h1 style="font-size:28px;">Aggiungi immagine</h1>
 
-            <form action="<%= request.getContextPath() %>/admin/immagini-prodotto" method="post">
+            <form action="<%= request.getContextPath() %>/admin/immagini-prodotto" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="add">
                 <input type="hidden" name="idProdotto" value="<%= prodotto != null ? prodotto.getIdProdotto() : "" %>">
 
                 <div class="form-group">
-                    <label>URL immagine</label>
-                    <input type="text" name="urlImmagine" required>
+                    <label>Immagine</label>
+                    <input type="file" name="immagine" accept="image/png,image/jpeg,image/webp,image/gif" required>
                 </div>
 
                 <div class="form-group" style="display:flex; align-items:center; gap:14px; padding: 12px 0;">
                     <label class = "toggle-switch">
-                        <input type="checkbox" name="principale" value="true">
+                        <input type="checkbox" name="principale" value="true" aria-label="Imposta come immagine principale" title="Imposta come immagine principale">
                         <span class = "toogle-slider"> </span>
                     </label>
-                    <span style="font-weight: 600; font-size: 15px;"> Imposta come immagine principale </span>
                 </div>
 
                 <button type="submit" class="btn btn-primary">Aggiungi immagine</button>

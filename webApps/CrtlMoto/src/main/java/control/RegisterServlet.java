@@ -20,12 +20,24 @@ public class RegisterServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (request.getSession(false) != null &&
+                request.getSession(false).getAttribute("utente") != null) {
+
+            response.sendRedirect(request.getContextPath());
+            return;
+        }
         request.getRequestDispatcher("/register.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        if (request.getSession(false) != null &&
+                request.getSession(false).getAttribute("utente") != null) {
+
+            response.sendRedirect(request.getContextPath());
+            return;
+        }
 
         String nome = ValidationUtils.clean(request.getParameter("nome"));
         String cognome = ValidationUtils.clean(request.getParameter("cognome"));

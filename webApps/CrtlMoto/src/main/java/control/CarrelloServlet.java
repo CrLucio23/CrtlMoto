@@ -25,6 +25,10 @@ public class CarrelloServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
+        if (SessionUtils.isAdmin(request)) {
+            response.sendRedirect(request.getContextPath() + "/admin/prodotti");
+            return;
+        }
 
         try {
             Carrello carrello = carrelloDAO.getOrCreateByUserId(utente.getIdUtente());
@@ -42,6 +46,10 @@ public class CarrelloServlet extends HttpServlet {
         Utente utente = SessionUtils.getUtenteLoggato(request);
         if (utente == null) {
             response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
+        if (SessionUtils.isAdmin(request)) {
+            response.sendRedirect(request.getContextPath() + "/admin/prodotti");
             return;
         }
 

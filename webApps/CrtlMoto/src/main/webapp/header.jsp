@@ -122,9 +122,13 @@
         <a href="<%= request.getContextPath() %>/register">Registrati</a>
         <% } else { %>
         <a href="<%= request.getContextPath() %>/profilo">Profilo</a>
+        <% if (!"admin".equalsIgnoreCase(utenteHeader.getRuolo())) { %>
         <a href="<%= request.getContextPath() %>/garage">Garage</a>
         <a href="<%= request.getContextPath() %>/i-miei-ordini">Ordini</a>
         <a href="<%= request.getContextPath() %>/carrello">Carrello</a>
+        <% } else { %>
+        <a href="<%= request.getContextPath() %>/admin/prodotti">Admin</a>
+        <% } %>
         <a href="<%= request.getContextPath() %>/logout">Logout</a>
         <% } %>
     </nav>

@@ -3,15 +3,22 @@ package control;
 import dao.ImmagineProdottoDAO;
 import dao.ProdottoDAO;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.ImmagineProdotto;
+import utils.ImageUploadUtils;
 import utils.ValidationUtils;
 
 import java.io.IOException;
 import java.sql.SQLException;
 
 @WebServlet("/admin/immagini-prodotto")
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 5 * 1024 * 1024,
+        maxRequestSize = 6 * 1024 * 1024
+)
 public class AdminImmaginiProdottoServlet extends HttpServlet {
 
     private final ImmagineProdottoDAO immagineProdottoDAO = new ImmagineProdottoDAO();
@@ -39,10 +46,17 @@ public class AdminImmaginiProdottoServlet extends HttpServlet {
 
         try {
             if ("add".equalsIgnoreCase(action)) {
-                String urlImmagine = ValidationUtils.clean(request.getParameter("urlImmagine"));
                 Integer idProdotto = ValidationUtils.parseInteger(request.getParameter("idProdotto"));
-                if (idProdotto == null || idProdotto <= 0 || !ValidationUtils.isValidImageUrl(urlImmagine)) {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "URL immagine non valido");
+                Part immaginePart = request.getPart("immagine");
+
+                if (idProdotto == null || idProdotto <= 0) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Prodotto non valido");
+                    return;
+                }
+
+                String urlImmagine = ImageUploadUtils.saveProductImage(getServletContext(), immaginePart, idProdotto);
+                if (urlImmagine == null) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Immagine non valida");
                     return;
                 }
 
