@@ -17,7 +17,7 @@
 <head>
     <meta charset="UTF-8">
     <title><%= prodotto != null ? prodotto.getNomeProdotto() : "Prodotto" %> - CRTLMOTO</title>
-    <link rel="icon" type="image/png" href="<%= request.getContextPath() %>/assets/images/favicon.png">
+    <link rel="icon" type="image/png" href="<%= request.getContextPath() %>/images/favicon.png">
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/base.css">
 </head>
 <body>
@@ -56,9 +56,9 @@
 
             <div class="product-meta">
                 <% if (prodotto.getScontoPercentuale() > 0) { %>
-                <span class="product-badge product-badge-sale">-<%= prodotto.getScontoPercentuale() %>%</span>
+                <span class="product-badge product-badge-sale static-badge">-<%= prodotto.getScontoPercentuale() %>%</span>
                 <% } else { %>
-                <span class="product-badge product-badge-new">TOP PICK</span>
+                <span class="product-badge product-badge-new static-badge">TOP PICK</span>
                 <% } %>
 
                 <h1><%= prodotto.getNomeProdotto() %></h1>

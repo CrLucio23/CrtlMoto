@@ -19,7 +19,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Carrello - CRTLMOTO</title>
-  <link rel="icon" type="image/png" href="<%= request.getContextPath() %>/assets/images/favicon.png">
+  <link rel="icon" type="image/png" href="<%= request.getContextPath() %>/images/favicon.png">
   <link rel="stylesheet" href="<%= request.getContextPath() %>/css/base.css">
 </head>
 <body>
