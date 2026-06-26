@@ -1,6 +1,9 @@
 package control;
 
 import dao.UtenteDAO;
+import dao.CarrelloDAO;
+import model.Carrello;
+import model.DettaglioCarrello;
 import model.Utente;
 import utils.PasswordUtils;
 import utils.ValidationUtils;
@@ -16,6 +19,7 @@ import java.sql.SQLException;
 public class LoginServlet extends HttpServlet {
 
     private final UtenteDAO utenteDAO = new UtenteDAO();
+    private final CarrelloDAO carrelloDAO = new CarrelloDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -52,6 +56,8 @@ public class LoginServlet extends HttpServlet {
             }
 
             HttpSession oldSession = request.getSession(false);
+            Carrello guestCart = CarrelloServlet.peekGuestCart(oldSession);
+
             if (oldSession != null) {
                 oldSession.invalidate();
             }
@@ -59,10 +65,24 @@ public class LoginServlet extends HttpServlet {
             HttpSession session = request.getSession(true);
             session.setAttribute("utente", utente);
 
+            mergeGuestCart(guestCart, utente.getIdUtente());
+
             response.sendRedirect(request.getContextPath() + "/");
 
         } catch (SQLException e) {
             throw new ServletException(e);
+        }
+    }
+
+    private void mergeGuestCart(Carrello guestCart, int idUtente) throws SQLException {
+        if (guestCart == null || guestCart.getArticoli() == null) {
+            return;
+        }
+
+        for (DettaglioCarrello dettaglio : guestCart.getArticoli()) {
+            if (dettaglio.getQuantita() > 0) {
+                carrelloDAO.addProduct(idUtente, dettaglio.getIdProdotto(), dettaglio.getQuantita());
+            }
         }
     }
 }

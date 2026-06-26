@@ -8,6 +8,11 @@
     List<Prodotto> ultimiProdotti = (List<Prodotto>) request.getAttribute("ultimiProdotti");
     List<Prodotto> prodottiScontati = (List<Prodotto>) request.getAttribute("prodottiScontati");
     List<Categoria> categorie = (List<Categoria>) request.getAttribute("categorie");
+
+    if (ultimiProdotti == null && prodottiScontati == null && categorie == null) {
+        response.sendRedirect(request.getContextPath() + "/home");
+        return;
+    }
 %>
 
 <!DOCTYPE html>

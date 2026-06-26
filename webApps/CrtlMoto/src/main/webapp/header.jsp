@@ -1,6 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="model.Utente" %>
 <%@ page import="model.Categoria" %>
+<%@ page import="model.Carrello" %>
+<%@ page import="model.DettaglioCarrello" %>
 <%@ page import="java.util.List" %>
 
 <%
@@ -10,6 +12,12 @@
     Integer carrelloCount = (Integer) request.getAttribute("carrelloCount");
     if (carrelloCount == null) {
         carrelloCount = 0;
+        Carrello guestCartHeader = (Carrello) session.getAttribute("guestCart");
+        if (guestCartHeader != null && guestCartHeader.getArticoli() != null) {
+            for (DettaglioCarrello dettaglioHeader : guestCartHeader.getArticoli()) {
+                carrelloCount += dettaglioHeader.getQuantita();
+            }
+        }
     }
 %>
 <header>
@@ -120,6 +128,7 @@
         <% if (utenteHeader == null) { %>
         <a href="<%= request.getContextPath() %>/login">Login</a>
         <a href="<%= request.getContextPath() %>/register">Registrati</a>
+        <a href="<%= request.getContextPath() %>/carrello">Carrello</a>
         <% } else { %>
         <a href="<%= request.getContextPath() %>/profilo">Profilo</a>
         <% if (!"admin".equalsIgnoreCase(utenteHeader.getRuolo())) { %>

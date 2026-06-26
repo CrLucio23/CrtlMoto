@@ -10,7 +10,6 @@ import utils.SessionUtils;
 import java.io.IOException;
 
 @WebFilter(urlPatterns = {
-        "/carrello",
         "/checkout",
         "/ordine-confermato",
         "/profilo",

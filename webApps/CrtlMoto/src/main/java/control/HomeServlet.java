@@ -11,7 +11,7 @@ import model.Utente;
 import java.io.IOException;
 import java.sql.SQLException;
 
-@WebServlet("")
+@WebServlet(urlPatterns = {"", "/home"})
 public class HomeServlet extends HttpServlet {
 
     private final ProdottoDAO prodottoDAO = new ProdottoDAO();

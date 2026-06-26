@@ -1,25 +1,12 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="model.Prodotto" %>
-<%@ page import="model.ImmagineProdotto" %>
-<%@ page import="model.Utente" %>
-<%@ page import="utils.ImageUtils" %>
-
-<%
-    Prodotto prodotto = (Prodotto) request.getAttribute("prodotto");
-    Utente utente = (Utente) session.getAttribute("utente");
-    boolean admin = utente != null && "admin".equalsIgnoreCase(utente.getRuolo());
-    String img = request.getContextPath() + "/images/no-image.png";
-
-    if (prodotto != null && prodotto.getImmagini() != null && !prodotto.getImmagini().isEmpty()) {
-        img = ImageUtils.resolve(request, prodotto.getImmagini().get(0).getUrlImmagine());
-    }
-%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title><%= prodotto != null ? prodotto.getNomeProdotto() : "Prodotto" %> - CRTLMOTO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><c:out value="${empty prodotto ? 'Prodotto' : prodotto.nomeProdotto}" /> - CRTLMOTO</title>
     <link rel="icon" type="image/png" href="<%= request.getContextPath() %>/images/favicon.png">
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/base.css">
 </head>
@@ -29,102 +16,106 @@
     <jsp:include page="header.jsp" />
 
     <main class="container page-section">
-        <% if (prodotto == null) { %>
-        <div class="alert-error">Prodotto non trovato.</div>
-        <% } else { %>
-        <div class="product-layout">
-            <%
-                java.util.List<ImmagineProdotto> immagini = prodotto.getImmagini();
-            %>
-            <div>
-                <div class="product-gallery-main">
-                    <button type="button" onclick="prevImage()" class="gallery-arrow">‹</button>
-                    <img id="mainProductImage" src="<%= img %>" alt="<%= prodotto.getNomeProdotto() %>">
-                    <button type="button" onclick="nextImage()" class="gallery-arrow">›</button>
-                </div>
+        <c:choose>
+            <c:when test="${empty prodotto}">
+                <div class="alert-error">Prodotto non trovato.</div>
+            </c:when>
+            <c:otherwise>
+                <div class="product-layout">
+                    <div>
+                        <div class="product-gallery-main">
+                            <button type="button" onclick="prevImage()" class="gallery-arrow" aria-label="Immagine precedente">&lsaquo;</button>
+                            <img id="mainProductImage" src="${mainImage}" alt="${prodotto.nomeProdotto}">
+                            <button type="button" onclick="nextImage()" class="gallery-arrow" aria-label="Immagine successiva">&rsaquo;</button>
+                        </div>
 
-                <% if (immagini != null && !immagini.isEmpty()) { %>
-                <div class="product-thumb-row">
-                    <% for (int k = 0; k < immagini.size(); k++) { %>
-                    <div class="product-thumb">
-                        <img
-                                src="<%= ImageUtils.resolve(request, immagini.get(k).getUrlImmagine()) %>"
-                                alt="thumb"
-                                onclick="setImage(<%= k %>)">
-                    </div>
-                    <% } %>
-                </div>
-                <% } %>
-            </div>
-
-            <div class="product-meta">
-                <% if (prodotto.getScontoPercentuale() > 0) { %>
-                <span class="product-badge product-badge-sale static-badge">-<%= prodotto.getScontoPercentuale() %>%</span>
-                <% } else { %>
-                <span class="product-badge product-badge-new static-badge">TOP PICK</span>
-                <% } %>
-
-                <h1><%= prodotto.getNomeProdotto() %></h1>
-
-                <p><strong>Descrizione:</strong> <%= prodotto.getDescrizione() != null ? prodotto.getDescrizione() : "-" %></p>
-                <p><strong>Colore:</strong> <%= prodotto.getColore() != null ? prodotto.getColore() : "-" %></p>
-                <p><strong>Taglia:</strong> <%= prodotto.getTaglia() != null ? prodotto.getTaglia() : "-" %></p>
-                <p><strong>Compatibilità:</strong> <%= prodotto.getCompatibilita() != null ? prodotto.getCompatibilita() : "-" %></p>
-
-                <p>
-                    <strong>Disponibilità:</strong>
-                    <% if (prodotto.getQuantitaMagazzino() > 5) { %>
-                    Disponibile
-                    <% } else if (prodotto.getQuantitaMagazzino() > 0) { %>
-                    Ultimi pezzi
-                    <% } else { %>
-                    Esaurito
-                    <% } %>
-                </p>
-
-                <div class="price-box">
-                    <% if (prodotto.getScontoPercentuale() > 0) { %>
-                    <span class="old-price">€ <%= prodotto.getPrezzoBase() %></span>
-                    <% } %>
-                    <span class="new-price">€ <%= prodotto.getPrezzoScontato() %></span>
-                </div>
-
-                <% if (admin) { %>
-                <a class="btn btn-primary" href="<%= request.getContextPath() %>/admin/prodotti?action=edit&id=<%= prodotto.getIdProdotto() %>">Modifica prodotto</a>
-                <% } else { %>
-                <form action="<%= request.getContextPath() %>/carrello" method="post">
-                    <input type="hidden" name="action" value="add">
-                    <input type="hidden" name="idProdotto" value="<%= prodotto.getIdProdotto() %>">
-
-                    <div class="form-group">
-                        <label for="quantita">Quantità</label>
-                        <input type="number" id="quantita" name="quantita" min="1" value="1" required>
+                        <c:if test="${not empty galleryImages}">
+                            <div class="product-thumb-row">
+                                <c:forEach var="image" items="${galleryImages}" varStatus="status">
+                                    <div class="product-thumb">
+                                        <button type="button"
+                                                class="product-thumb-button"
+                                                onclick="setImage(${status.index})"
+                                                aria-label="Mostra immagine ${status.count}">
+                                            <img src="${image}" alt="">
+                                        </button>
+                                    </div>
+                                </c:forEach>
+                            </div>
+                        </c:if>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">Aggiungi al carrello</button>
-                </form>
-                <% } %>
-            </div>
-        </div>
-        <% } %>
+                    <div class="product-meta">
+                        <c:choose>
+                            <c:when test="${prodotto.scontoPercentuale > 0}">
+                                <span class="product-badge product-badge-sale static-badge">-${prodotto.scontoPercentuale}%</span>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="product-badge product-badge-new static-badge">TOP PICK</span>
+                            </c:otherwise>
+                        </c:choose>
+
+                        <h1><c:out value="${prodotto.nomeProdotto}" /></h1>
+
+                        <p><strong>Descrizione:</strong> <c:out value="${empty prodotto.descrizione ? '-' : prodotto.descrizione}" /></p>
+                        <p><strong>Colore:</strong> <c:out value="${empty prodotto.colore ? '-' : prodotto.colore}" /></p>
+                        <p><strong>Taglia:</strong> <c:out value="${empty prodotto.taglia ? '-' : prodotto.taglia}" /></p>
+                        <p><strong>Compatibilita:</strong> <c:out value="${empty prodotto.compatibilita ? '-' : prodotto.compatibilita}" /></p>
+
+                        <p><strong>Disponibilita:</strong> <span id="availabilityText"><c:out value="${availabilityText}" /></span></p>
+                        <p id="stockMessage" class="stock-message" aria-live="polite"></p>
+
+                        <div class="price-box">
+                            <c:if test="${prodotto.scontoPercentuale > 0}">
+                                <span class="old-price">&euro; ${prodotto.prezzoBase}</span>
+                            </c:if>
+                            <span class="new-price">&euro; ${prodotto.prezzoScontato}</span>
+                        </div>
+
+                        <c:choose>
+                            <c:when test="${admin}">
+                                <a class="btn btn-primary" href="${pageContext.request.contextPath}/admin/prodotti?action=edit&id=${prodotto.idProdotto}">Modifica prodotto</a>
+                            </c:when>
+                            <c:otherwise>
+                                <form action="${pageContext.request.contextPath}/carrello" method="post">
+                                    <input type="hidden" name="action" value="add">
+                                    <input type="hidden" name="idProdotto" value="${prodotto.idProdotto}">
+
+                                    <div class="form-group">
+                                        <label for="quantita">Quantita</label>
+                                        <input type="number"
+                                               id="quantita"
+                                               name="quantita"
+                                               min="1"
+                                               max="${prodotto.quantitaMagazzino}"
+                                               value="1"
+                                               required>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Aggiungi al carrello</button>
+                                </form>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                </div>
+            </c:otherwise>
+        </c:choose>
     </main>
 
     <jsp:include page="footer.jsp" />
 </div>
+
 <script>
     const images = [
-        <% if (prodotto != null && prodotto.getImmagini() != null) {
-            for (int k = 0; k < prodotto.getImmagini().size(); k++) {
-                ImmagineProdotto im = prodotto.getImmagini().get(k);
-        %>
-        "<%= ImageUtils.resolve(request, im.getUrlImmagine()) %>"<%= k < prodotto.getImmagini().size() - 1 ? "," : "" %>
-        <%  }
-        } %>
+        <c:forEach var="image" items="${galleryImages}" varStatus="status">
+        "${image}"<c:if test="${not status.last}">,</c:if>
+        </c:forEach>
     ];
 
     let currentIndex = 0;
 
     function setImage(index) {
+        if (images.length === 0) return;
         currentIndex = index;
         document.getElementById("mainProductImage").src = images[currentIndex];
     }
@@ -139,6 +130,32 @@
         if (images.length === 0) return;
         currentIndex = (currentIndex - 1 + images.length) % images.length;
         setImage(currentIndex);
+    }
+
+    const quantityInput = document.getElementById("quantita");
+    const stockMessage = document.getElementById("stockMessage");
+
+    if (quantityInput && stockMessage) {
+        quantityInput.addEventListener("input", checkAvailability);
+        checkAvailability();
+    }
+
+    function checkAvailability() {
+        const params = new URLSearchParams({
+            id: "${prodotto.idProdotto}",
+            quantita: quantityInput.value
+        });
+
+        fetch("${pageContext.request.contextPath}/api/prodotto-disponibilita?" + params.toString())
+            .then(response => response.json())
+            .then(data => {
+                stockMessage.textContent = data.messaggio;
+                stockMessage.className = data.disponibile ? "stock-message alert-success" : "stock-message alert-error";
+            })
+            .catch(() => {
+                stockMessage.textContent = "";
+                stockMessage.className = "stock-message";
+            });
     }
 </script>
 </body>
