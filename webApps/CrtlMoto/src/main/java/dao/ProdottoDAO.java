@@ -192,6 +192,17 @@ public class ProdottoDAO {
         }
     }
 
+    public void restore(int idProdotto) throws SQLException {
+        String sql = "UPDATE Prodotto SET attivo = TRUE WHERE id_prodotto = ?";
+
+        try (Connection con = DBManager.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idProdotto);
+            ps.executeUpdate();
+        }
+    }
+
     private Prodotto mapRow(ResultSet rs) throws SQLException {
         Prodotto p = new Prodotto();
         p.setIdProdotto(rs.getInt("id_prodotto"));

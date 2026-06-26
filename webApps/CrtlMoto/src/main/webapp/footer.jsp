@@ -10,10 +10,10 @@
         <div>
             <h4>Link utili</h4>
             <ul>
-                <li><a href="<%= request.getContextPath() %>/catalogo">Catalogo</a></li>
-                <li><a href="<%= request.getContextPath() %>/profilo">Profilo</a></li>
-                <li><a href="<%= request.getContextPath() %>/garage">Il mio garage</a></li>
-                <li><a href="<%= request.getContextPath() %>/i-miei-ordini">Ordini</a></li>
+                <li><a href="${pageContext.request.contextPath}/catalogo">Catalogo</a></li>
+                <li><a href="${pageContext.request.contextPath}/profilo">Profilo</a></li>
+                <li><a href="${pageContext.request.contextPath}/garage">Il mio garage</a></li>
+                <li><a href="${pageContext.request.contextPath}/i-miei-ordini">Ordini</a></li>
             </ul>
         </div>
 

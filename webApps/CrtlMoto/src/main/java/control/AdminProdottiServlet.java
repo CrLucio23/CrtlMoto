@@ -84,6 +84,18 @@ public class AdminProdottiServlet extends HttpServlet {
                 return;
             }
 
+            if ("restore".equalsIgnoreCase(action)) {
+                Integer id = ValidationUtils.parseInteger(request.getParameter("id"));
+                if (id == null || id <= 0) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID prodotto non valido");
+                    return;
+                }
+
+                prodottoDAO.restore(id);
+                response.sendRedirect(request.getContextPath() + "/admin/prodotti");
+                return;
+            }
+
             String nomeProdotto = ValidationUtils.clean(request.getParameter("nomeProdotto"));
             String descrizione = ValidationUtils.clean(request.getParameter("descrizione"));
             BigDecimal prezzoBase = ValidationUtils.parseBigDecimal(request.getParameter("prezzoBase"));

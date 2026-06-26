@@ -1,11 +1,12 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <title>Registrazione - CRTLMOTO</title>
-  <link rel="icon" type="image/png" href="<%= request.getContextPath() %>/images/favicon.png">
-  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/base.css">
+  <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/images/favicon.png">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css">
 </head>
 <body>
 
@@ -16,29 +17,29 @@
     <div class="form-box">
       <h1>Registrati</h1>
 
-      <% if (request.getAttribute("errore") != null) { %>
-      <div class="alert-error"><%= request.getAttribute("errore") %></div>
-      <% } %>
+      <c:if test="${not empty errore}">
+      <div class="alert-error"><c:out value="${errore}" /></div>
+      </c:if>
 
-      <form action="<%= request.getContextPath() %>/register" method="post">
+      <form action="${pageContext.request.contextPath}/register" method="post">
         <div class="form-group">
           <label for="nome">Nome</label>
           <input type="text" id="nome" name="nome"
-                 value="<%= request.getAttribute("nome") != null ? request.getAttribute("nome") : "" %>"
+                 value="${nome}"
                  required>
         </div>
 
         <div class="form-group">
           <label for="cognome">Cognome</label>
           <input type="text" id="cognome" name="cognome"
-                 value="<%= request.getAttribute("cognome") != null ? request.getAttribute("cognome") : "" %>"
+                 value="${cognome}"
                  required>
         </div>
 
         <div class="form-group">
           <label for="email">Email</label>
           <input type="email" id="email" name="email"
-                 value="<%= request.getAttribute("email") != null ? request.getAttribute("email") : "" %>"
+                 value="${email}"
                  required>
         </div>
 
@@ -52,7 +53,7 @@
 
       <div style="margin-top: 18px;">
         <p>Hai già un account?
-          <a href="<%= request.getContextPath() %>/login" style="color:#A52A2A; font-weight:bold;">Accedi</a>
+          <a href="${pageContext.request.contextPath}/login" style="color:#A52A2A; font-weight:bold;">Accedi</a>
         </p>
       </div>
     </div>

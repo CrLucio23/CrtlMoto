@@ -1,42 +1,29 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.List" %>
-<%@ page import="model.Prodotto" %>
-<%@ page import="utils.ImageUtils" %>
-<%@ page import="model.Categoria" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
+<%@ taglib prefix="img" uri="http://crtlmoto.it/tags/images" %>
 
-<%
-    List<Prodotto> ultimiProdotti = (List<Prodotto>) request.getAttribute("ultimiProdotti");
-    List<Prodotto> prodottiScontati = (List<Prodotto>) request.getAttribute("prodottiScontati");
-    List<Categoria> categorie = (List<Categoria>) request.getAttribute("categorie");
-
-    if (ultimiProdotti == null && prodottiScontati == null && categorie == null) {
-        response.sendRedirect(request.getContextPath() + "/home");
-        return;
-    }
-%>
+<c:if test="${empty ultimiProdotti and empty prodottiScontati and empty categorie}">
+    <c:redirect url="/home" />
+</c:if>
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>CRTLMOTO - Accessori e ricambi moto</title>
-    <link rel="icon" type="image/png" href="<%= request.getContextPath() %>/images/favicon.png">
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/base.css">
+    <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/images/favicon.png">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css">
 </head>
-<%
-    Boolean mostraNewsletter = (Boolean) request.getAttribute("mostraNewsletter");
-%>
 
-<body class="<%= Boolean.TRUE.equals(mostraNewsletter) ? "modal-open" : "" %>">
+<body class="${mostraNewsletter ? 'modal-open' : ''}">
 
-<%
-    if(Boolean.TRUE.equals(mostraNewsletter)){
-%>
+<c:if test="${mostraNewsletter}">
 <div id="newsletterModal" class="newsletter-modal-overlay">
     <div class="newsletter-modal">
         <div class="newsletter-modal-left">
             <h2>Entra nel mondo CRTLMOTO</h2>
-            <p>Ricevi novità, promo e un codice sconto esclusivo per il tuo primo acquisto.</p>
+            <p>Ricevi novita, promo e un codice sconto esclusivo per il tuo primo acquisto.</p>
         </div>
 
         <div class="newsletter-modal-right">
@@ -44,7 +31,7 @@
             <h3>Newsletter</h3>
             <p>Inserisci la tua email e resta aggiornato sulle migliori offerte del mondo moto.</p>
 
-            <form action="<%= request.getContextPath() %>/newsletter" method="post">
+            <form action="${pageContext.request.contextPath}/newsletter" method="post">
                 <input type="email" name="email" placeholder="Inserisci la tua email" required>
                 <div class="modal-actions">
                     <button type="submit" class="btn btn-primary">Iscrivimi</button>
@@ -56,23 +43,24 @@
         </div>
     </div>
 </div>
-<% } %>
+</c:if>
+
 <div class="page-blur-wrapper">
     <jsp:include page="/header.jsp" />
 
     <main class="container page-section">
         <section class="hero-xl hero-moto">
             <div class="hero-content">
-                <span class="hero-kicker">Performance • stile • strada</span>
+                <span class="hero-kicker">Performance &bull; stile &bull; strada</span>
                 <h1>Equipaggia la tua moto come si deve</h1>
                 <p>
                     Ricambi, accessori, protezioni e abbigliamento selezionati
-                    per chi vuole qualità vera e look aggressivo.
+                    per chi vuole qualita vera e look aggressivo.
                 </p>
 
                 <div class="hero-actions">
-                    <a class="btn btn-primary" href="<%= request.getContextPath() %>/catalogo">Shop now</a>
-                    <a class="btn btn-light" href="<%= request.getContextPath() %>/garage">Il mio garage</a>
+                    <a class="btn btn-primary" href="${pageContext.request.contextPath}/catalogo">Shop now</a>
+                    <a class="btn btn-light" href="${pageContext.request.contextPath}/garage">Il mio garage</a>
                 </div>
             </div>
         </section>
@@ -94,78 +82,68 @@
 
         <section>
             <h2 class="section-title">Categorie top</h2>
-            <p class="section-subtitle">Entra subito nelle sezioni più cercate.</p>
+            <p class="section-subtitle">Entra subito nelle sezioni piu cercate.</p>
 
             <div class="category-grid">
-                <%
-                    if (categorie != null) {
-                        for (Categoria c : categorie) {
-                            String categoryClass = "category-default";
-                            String nome = c.getNomeCategoria() != null ? c.getNomeCategoria().toLowerCase() : "";
+                <c:forEach var="c" items="${categorie}">
+                    <c:set var="nomeCategoriaLower" value="${fn:toLowerCase(c.nomeCategoria)}" />
+                    <c:set var="categoryClass" value="category-default" />
+                    <c:if test="${fn:contains(nomeCategoriaLower, 'casc')}">
+                        <c:set var="categoryClass" value="category-helmet" />
+                    </c:if>
+                    <c:if test="${fn:contains(nomeCategoriaLower, 'giacc')}">
+                        <c:set var="categoryClass" value="category-jacket" />
+                    </c:if>
+                    <c:if test="${fn:contains(nomeCategoriaLower, 'guant')}">
+                        <c:set var="categoryClass" value="category-gloves" />
+                    </c:if>
+                    <c:if test="${fn:contains(nomeCategoriaLower, 'fren')}">
+                        <c:set var="categoryClass" value="category-brakes" />
+                    </c:if>
+                    <c:if test="${fn:contains(nomeCategoriaLower, 'access')}">
+                        <c:set var="categoryClass" value="category-accessories" />
+                    </c:if>
 
-                            if (nome.contains("casc")) categoryClass = "category-helmet";
-                            else if (nome.contains("giacc")) categoryClass = "category-jacket";
-                            else if (nome.contains("guant")) categoryClass = "category-gloves";
-                            else if (nome.contains("fren")) categoryClass = "category-brakes";
-                            else if (nome.contains("access")) categoryClass = "category-accessories";
-                %>
-                <a class="category-card <%= categoryClass %>" href="<%= request.getContextPath() %>/catalogo?categoria=<%= c.getIdCategoria() %>">
-                    <div class="category-card-overlay"></div>
-                    <div class="category-card-content">
-                        <h3><%= c.getNomeCategoria() %></h3>
-                        <span>Scopri ora</span>
-                    </div>
-                </a>
-                <%
-                        }
-                    }
-                %>
+                    <a class="category-card ${categoryClass}" href="${pageContext.request.contextPath}/catalogo?categoria=${c.idCategoria}">
+                        <div class="category-card-overlay"></div>
+                        <div class="category-card-content">
+                            <h3><c:out value="${c.nomeCategoria}" /></h3>
+                            <span>Scopri ora</span>
+                        </div>
+                    </a>
+                </c:forEach>
             </div>
         </section>
 
         <section>
             <h2 class="section-title">Nuovi arrivi</h2>
-            <p class="section-subtitle">Le ultime novità disponibili nello store.</p>
+            <p class="section-subtitle">Le ultime novita disponibili nello store.</p>
 
             <div class="grid-products">
-                <%
-                    if (ultimiProdotti != null) {
-                        for (Prodotto p : ultimiProdotti) {
-                            String img = request.getContextPath() + "/images/no-image.png";
-                            if (p.getImmagini() != null && !p.getImmagini().isEmpty()) {
-                                img = ImageUtils.resolve(request, p.getImmagini().get(0).getUrlImmagine());
-                            }
-                %>
+                <c:forEach var="p" items="${ultimiProdotti}">
                 <div class="product-card">
                     <div class="product-card-image">
-                        <img src="<%= img %>" alt="<%= p.getNomeProdotto() %>">
+                        <img src="${img:resolve(pageContext.request, empty p.immagini ? '' : p.immagini[0].urlImmagine)}" alt="${p.nomeProdotto}">
                         <span class="product-badge product-badge-new">NEW</span>
-                        <%
-                            if (p.getQuantitaMagazzino() > 0 && p.getQuantitaMagazzino() <= 5) {
-                        %>
-                        <span class="product-badge product-badge-stock">Solo <%= p.getQuantitaMagazzino() %></span>
-                        <%
-                            }
-                        %>
+                        <c:if test="${p.quantitaMagazzino > 0 and p.quantitaMagazzino <= 5}">
+                        <span class="product-badge product-badge-stock">Solo ${p.quantitaMagazzino}</span>
+                        </c:if>
                     </div>
 
                     <div class="product-card-body">
-                        <h3><%= p.getNomeProdotto() %></h3>
-                        <p><%= p.getDescrizione() != null ? p.getDescrizione() : "" %></p>
+                        <h3><c:out value="${p.nomeProdotto}" /></h3>
+                        <p><c:out value="${p.descrizione}" /></p>
 
                         <div class="price-box">
-                            <span class="new-price">€ <%= p.getPrezzoScontato() %></span>
+                            <span class="new-price">&euro; ${p.prezzoScontato}</span>
                         </div>
 
                         <div class="product-card-actions">
-                            <a class="btn btn-dark" href="<%= request.getContextPath() %>/prodotto?id=<%= p.getIdProdotto() %>">Scopri</a>
+                            <a class="btn btn-dark" href="${pageContext.request.contextPath}/prodotto?id=${p.idProdotto}">Scopri</a>
                         </div>
                     </div>
                 </div>
-                <%
-                        }
-                    }
-                %>
+                </c:forEach>
             </div>
         </section>
 
@@ -175,7 +153,7 @@
                     <span class="banner-tag">Promo</span>
                     <h3>Accessori essenziali per ogni uscita</h3>
                     <p>Preparati alla prossima strada con una selezione aggressiva di prodotti.</p>
-                    <a class="btn btn-primary" href="<%= request.getContextPath() %>/catalogo">Esplora</a>
+                    <a class="btn btn-primary" href="${pageContext.request.contextPath}/catalogo">Esplora</a>
                 </div>
             </div>
 
@@ -183,8 +161,8 @@
                 <div class="banner-inner">
                     <span class="banner-tag">Garage</span>
                     <h3>Salva la tua moto nel garage</h3>
-                    <p>Gestisci i tuoi veicoli e trova prodotti più adatti al tuo setup.</p>
-                    <a class="btn btn-light" href="<%= request.getContextPath() %>/garage">Vai al garage</a>
+                    <p>Gestisci i tuoi veicoli e trova prodotti piu adatti al tuo setup.</p>
+                    <a class="btn btn-light" href="${pageContext.request.contextPath}/garage">Vai al garage</a>
                 </div>
             </div>
         </section>
@@ -194,45 +172,35 @@
             <p class="section-subtitle">Sconti attivi su prodotti selezionati.</p>
 
             <div class="grid-products">
-                <%
-                    if (prodottiScontati != null) {
-                        for (Prodotto p : prodottiScontati) {
-                            String img = request.getContextPath() + "/images/no-image.png";
-                            if (p.getImmagini() != null && !p.getImmagini().isEmpty()) {
-                                img = ImageUtils.resolve(request, p.getImmagini().get(0).getUrlImmagine());
-                            }
-                %>
+                <c:forEach var="p" items="${prodottiScontati}">
                 <div class="product-card">
                     <div class="product-card-image">
-                        <img src="<%= img %>" alt="<%= p.getNomeProdotto() %>">
-                        <span class="product-badge product-badge-sale">-<%= p.getScontoPercentuale() %>%</span>
+                        <img src="${img:resolve(pageContext.request, empty p.immagini ? '' : p.immagini[0].urlImmagine)}" alt="${p.nomeProdotto}">
+                        <span class="product-badge product-badge-sale">-${p.scontoPercentuale}%</span>
                     </div>
 
                     <div class="product-card-body">
-                        <h3><%= p.getNomeProdotto() %></h3>
-                        <p><%= p.getDescrizione() != null ? p.getDescrizione() : "" %></p>
+                        <h3><c:out value="${p.nomeProdotto}" /></h3>
+                        <p><c:out value="${p.descrizione}" /></p>
 
                         <div class="price-box">
-                            <span class="old-price">€ <%= p.getPrezzoBase() %></span>
-                            <span class="new-price">€ <%= p.getPrezzoScontato() %></span>
+                            <span class="old-price">&euro; ${p.prezzoBase}</span>
+                            <span class="new-price">&euro; ${p.prezzoScontato}</span>
                         </div>
 
                         <div class="product-card-actions">
-                            <a class="btn btn-primary" href="<%= request.getContextPath() %>/prodotto?id=<%= p.getIdProdotto() %>">Approfitta ora</a>
+                            <a class="btn btn-primary" href="${pageContext.request.contextPath}/prodotto?id=${p.idProdotto}">Approfitta ora</a>
                         </div>
                     </div>
                 </div>
-                <%
-                        }
-                    }
-                %>
+                </c:forEach>
             </div>
         </section>
 
         <section class="newsletter-inline">
             <h2>Newsletter CRTLMOTO</h2>
-            <p>Ricevi offerte, novità e codici sconto direttamente via email.</p>
-            <form action="<%= request.getContextPath() %>/newsletter" method="post">
+            <p>Ricevi offerte, novita e codici sconto direttamente via email.</p>
+            <form action="${pageContext.request.contextPath}/newsletter" method="post">
                 <input type="email" name="email" placeholder="Inserisci la tua email" required>
                 <button type="submit" class="btn btn-primary">Iscrivimi ora</button>
             </form>

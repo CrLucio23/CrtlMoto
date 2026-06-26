@@ -65,6 +65,17 @@
                                     </button>
                                 </form>
                             </c:if>
+                            <c:if test="${not p.attivo}">
+                                <form action="${pageContext.request.contextPath}/admin/prodotti" method="post">
+                                    <input type="hidden" name="action" value="restore">
+                                    <input type="hidden" name="id" value="${p.idProdotto}">
+                                    <button type="submit"
+                                            class="btn btn-primary"
+                                            onclick="return confirm('Il prodotto verra riattivato e mostrato nel catalogo. Continuare?')">
+                                        Riattiva
+                                    </button>
+                                </form>
+                            </c:if>
                         </td>
                     </tr>
                 </c:forEach>

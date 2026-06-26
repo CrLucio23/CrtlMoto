@@ -1,11 +1,12 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>Login - CRTLMOTO</title>
-    <link rel="icon" type="image/png" href="<%= request.getContextPath() %>/images/favicon.png">
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/base.css">
+    <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/images/favicon.png">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css">
 </head>
 <body>
 
@@ -16,19 +17,19 @@
         <div class="form-box">
             <h1>Login</h1>
 
-            <% if (request.getAttribute("errore") != null) { %>
-            <div class="alert-error"><%= request.getAttribute("errore") %></div>
-            <% } %>
+            <c:if test="${not empty errore}">
+            <div class="alert-error"><c:out value="${errore}" /></div>
+            </c:if>
 
-            <% if (request.getAttribute("successo") != null) { %>
-            <div class="alert-success"><%= request.getAttribute("successo") %></div>
-            <% } %>
+            <c:if test="${not empty successo}">
+            <div class="alert-success"><c:out value="${successo}" /></div>
+            </c:if>
 
-            <form action="<%= request.getContextPath() %>/login" method="post">
+            <form action="${pageContext.request.contextPath}/login" method="post">
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email"
-                           value="<%= request.getAttribute("email") != null ? request.getAttribute("email") : "" %>"
+                           value="${email}"
                            required>
                 </div>
 
@@ -42,7 +43,7 @@
 
             <div style="margin-top: 18px;">
                 <p>Non hai un account?
-                    <a href="<%= request.getContextPath() %>/register" style="color:#A52A2A; font-weight:bold;">Registrati</a>
+                    <a href="${pageContext.request.contextPath}/register" style="color:#A52A2A; font-weight:bold;">Registrati</a>
                 </p>
             </div>
         </div>

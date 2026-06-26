@@ -24,6 +24,12 @@ Il WAR viene generato in `webApps/CrtlMoto/target/CrtlMoto-1.0-SNAPSHOT.war` e p
 
 Prima dell'avvio creare il database eseguendo `database/crtlmoto.sql`.
 
+Se stai usando un database gia creato prima dell'aggiunta della gestione prodotti attivi/disattivati, applica anche:
+
+```bash
+mysql -u root -p crtlMoto < database/migrations/001_add_prodotto_attivo.sql
+```
+
 La connessione usa valori di default locali, ma in Tomcat esterno puo essere configurata senza ricompilare impostando:
 
 - `CRTLMOTO_DB_URL`

@@ -1,18 +1,13 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.List" %>
-<%@ page import="model.Ordine" %>
-
-<%
-    List<Ordine> ordini = (List<Ordine>) request.getAttribute("ordini");
-%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <title>Admin Ordini - CRTLMOTO</title>
-    <link rel="icon" type="image/png" href="<%= request.getContextPath() %>/images/favicon.png">
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/base.css">
+    <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/images/favicon.png">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css">
 </head>
 <body>
 
@@ -35,35 +30,29 @@
                 </tr>
                 </thead>
                 <tbody>
-                <%
-                    if (ordini != null) {
-                        for (Ordine o : ordini) {
-                %>
-                <tr style="border-bottom:1px solid #eee;">
-                    <td style="padding:12px;"><%= o.getIdOrdine() %></td>
-                    <td style="padding:12px;"><%= o.getIdUtente() %></td>
-                    <td style="padding:12px;"><%= o.getDataOrdine() %></td>
-                    <td style="padding:12px;">€ <%= o.getTotaleOrdine() %></td>
-                    <td style="padding:12px;"><%= o.getStatoOrdine() %></td>
-                    <td style="padding:12px;">
-                        <form action="<%= request.getContextPath() %>/admin/ordini" method="post" style="display:flex; gap:8px; flex-wrap:wrap;">
-                            <input type="hidden" name="idOrdine" value="<%= o.getIdOrdine() %>">
+                <c:forEach var="o" items="${ordini}">
+                    <tr style="border-bottom:1px solid #eee;">
+                        <td style="padding:12px;">${o.idOrdine}</td>
+                        <td style="padding:12px;">${o.idUtente}</td>
+                        <td style="padding:12px;">${o.dataOrdine}</td>
+                        <td style="padding:12px;">&euro; ${o.totaleOrdine}</td>
+                        <td style="padding:12px;"><c:out value="${o.statoOrdine}" /></td>
+                        <td style="padding:12px;">
+                            <form action="${pageContext.request.contextPath}/admin/ordini" method="post" style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <input type="hidden" name="idOrdine" value="${o.idOrdine}">
 
-                            <select name="statoOrdine">
-                                <option value="in_elaborazione" <%= "in_elaborazione".equals(o.getStatoOrdine()) ? "selected" : "" %>>In elaborazione</option>
-                                <option value="spedito" <%= "spedito".equals(o.getStatoOrdine()) ? "selected" : "" %>>Spedito</option>
-                                <option value="consegnato" <%= "consegnato".equals(o.getStatoOrdine()) ? "selected" : "" %>>Consegnato</option>
-                                <option value="annullato" <%= "annullato".equals(o.getStatoOrdine()) ? "selected" : "" %>>Annullato</option>
-                            </select>
+                                <select name="statoOrdine">
+                                    <option value="in_elaborazione" ${o.statoOrdine == 'in_elaborazione' ? 'selected' : ''}>In elaborazione</option>
+                                    <option value="spedito" ${o.statoOrdine == 'spedito' ? 'selected' : ''}>Spedito</option>
+                                    <option value="consegnato" ${o.statoOrdine == 'consegnato' ? 'selected' : ''}>Consegnato</option>
+                                    <option value="annullato" ${o.statoOrdine == 'annullato' ? 'selected' : ''}>Annullato</option>
+                                </select>
 
-                            <button type="submit" class="btn btn-primary">Salva</button>
-                        </form>
-                    </td>
-                </tr>
-                <%
-                        }
-                    }
-                %>
+                                <button type="submit" class="btn btn-primary">Salva</button>
+                            </form>
+                        </td>
+                    </tr>
+                </c:forEach>
                 </tbody>
             </table>
         </div>

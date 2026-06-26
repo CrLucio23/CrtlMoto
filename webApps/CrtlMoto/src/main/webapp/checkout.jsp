@@ -1,28 +1,13 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="model.Carrello" %>
-<%@ page import="model.DettaglioCarrello" %>
-<%@ page import="model.CodiceSconto" %>
-<%@ page import="java.math.BigDecimal" %>
-
-<%
-  Carrello carrello = (Carrello) request.getAttribute("carrello");
-  BigDecimal totale = (BigDecimal) request.getAttribute("totale");
-  BigDecimal totaleFinale = (BigDecimal) request.getAttribute("totaleFinale");
-  CodiceSconto coupon = (CodiceSconto) request.getAttribute("coupon");
-  String erroreCheckout = (String) session.getAttribute("erroreCheckout");
-  String messaggioCheckout = (String) session.getAttribute("messaggioCheckout");
-
-  session.removeAttribute("erroreCheckout");
-  session.removeAttribute("messaggioCheckout");
-%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <title>Checkout - CRTLMOTO</title>
-  <link rel="icon" type="image/png" href="<%= request.getContextPath() %>/images/favicon.png">
-  <link rel="stylesheet" href="<%= request.getContextPath() %>/css/base.css">
+  <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/images/favicon.png">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css">
 </head>
 <body>
 
@@ -32,24 +17,27 @@
   <main class="container page-section">
     <h1 class="section-title">Checkout</h1>
 
-    <% if (erroreCheckout != null) { %>
-    <div class="alert-error"><%= erroreCheckout %></div>
-    <% } %>
+    <c:if test="${not empty sessionScope.erroreCheckout}">
+    <div class="alert-error"><c:out value="${sessionScope.erroreCheckout}" /></div>
+    </c:if>
 
-    <% if (messaggioCheckout != null) { %>
-    <div class="alert-success"><%= messaggioCheckout %></div>
-    <% } %>
+    <c:if test="${not empty sessionScope.messaggioCheckout}">
+    <div class="alert-success"><c:out value="${sessionScope.messaggioCheckout}" /></div>
+    </c:if>
 
-    <% if (request.getAttribute("errore") != null) { %>
-    <div class="alert-error"><%= request.getAttribute("errore") %></div>
-    <% } %>
+    <c:remove var="erroreCheckout" scope="session" />
+    <c:remove var="messaggioCheckout" scope="session" />
+
+    <c:if test="${not empty errore}">
+    <div class="alert-error"><c:out value="${errore}" /></div>
+    </c:if>
 
     <div class="product-layout">
       <div>
         <div class="form-box" style="max-width:100%; margin:0;">
           <h1 style="font-size:28px;">Dati ordine</h1>
 
-          <form action="<%= request.getContextPath() %>/checkout" method="post">
+          <form action="${pageContext.request.contextPath}/checkout" method="post">
             <div class="form-group">
               <label for="indirizzoSpedizione">Indirizzo di spedizione</label>
               <input type="text" id="indirizzoSpedizione" name="indirizzoSpedizione" required>
@@ -73,7 +61,7 @@
         <div class="form-box" style="max-width:100%;">
           <h1 style="font-size:28px;">Codice sconto</h1>
 
-          <form action="<%= request.getContextPath() %>/applica-codice" method="post">
+          <form action="${pageContext.request.contextPath}/applica-codice" method="post">
             <div class="form-group">
               <label for="codice">Inserisci codice</label>
               <input type="text" id="codice" name="codice" placeholder="Inserisci coupon">
@@ -88,29 +76,26 @@
         <div class="form-box" style="max-width:100%; margin:0;">
           <h1 style="font-size:28px;">Riepilogo ordine</h1>
 
-          <%
-            if (carrello != null && carrello.getArticoli() != null) {
-              for (DettaglioCarrello d : carrello.getArticoli()) {
-          %>
+          <c:forEach var="d" items="${carrello.articoli}">
           <div style="padding:12px 0; border-bottom:1px solid #eee;">
-            <strong><%= d.getProdotto().getNomeProdotto() %></strong><br>
-            Quantità: <%= d.getQuantita() %><br>
-            Subtotale: € <%= d.getSubtotale() %>
+            <strong><c:out value="${d.prodotto.nomeProdotto}" /></strong><br>
+            Quantita: ${d.quantita}<br>
+            Subtotale: &euro; ${d.subtotale}
           </div>
-          <%
-              }
-            }
-          %>
+          </c:forEach>
 
           <div style="margin-top:18px;">
-            <p><strong>Totale:</strong> € <%= totale != null ? totale : "0.00" %></p>
+            <p><strong>Totale:</strong> &euro; ${empty totale ? '0.00' : totale}</p>
 
-            <% if (coupon != null) { %>
-            <p><strong>Coupon applicato:</strong> <%= coupon.getCodice() %> (-<%= coupon.getPercentualeSconto() %>%)</p>
-            <p class="new-price">Totale finale: € <%= totaleFinale %></p>
-            <% } else { %>
-            <p class="new-price">Totale finale: € <%= totale != null ? totale : "0.00" %></p>
-            <% } %>
+            <c:choose>
+              <c:when test="${not empty coupon}">
+                <p><strong>Coupon applicato:</strong> <c:out value="${coupon.codice}" /> (-${coupon.percentualeSconto}%)</p>
+                <p class="new-price">Totale finale: &euro; ${totaleFinale}</p>
+              </c:when>
+              <c:otherwise>
+                <p class="new-price">Totale finale: &euro; ${empty totale ? '0.00' : totale}</p>
+              </c:otherwise>
+            </c:choose>
           </div>
         </div>
       </div>
