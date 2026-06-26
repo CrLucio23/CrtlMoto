@@ -6,6 +6,8 @@ public class DettaglioOrdine {
     private int idDettaglioOrdine;
     private int quantita;
     private BigDecimal prezzoAcquisto;
+    private String nomeProdottoStorico;
+    private String immagineProdottoStorica;
     private int idOrdine;
     private Integer idProdotto;
     private Prodotto prodotto;
@@ -34,6 +36,22 @@ public class DettaglioOrdine {
 
     public void setPrezzoAcquisto(BigDecimal prezzoAcquisto) {
         this.prezzoAcquisto = prezzoAcquisto;
+    }
+
+    public String getNomeProdottoStorico() {
+        return nomeProdottoStorico;
+    }
+
+    public void setNomeProdottoStorico(String nomeProdottoStorico) {
+        this.nomeProdottoStorico = nomeProdottoStorico;
+    }
+
+    public String getImmagineProdottoStorica() {
+        return immagineProdottoStorica;
+    }
+
+    public void setImmagineProdottoStorica(String immagineProdottoStorica) {
+        this.immagineProdottoStorica = immagineProdottoStorica;
     }
 
     public int getIdOrdine() {

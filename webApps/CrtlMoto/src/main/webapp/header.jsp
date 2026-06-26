@@ -1,25 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="model.Utente" %>
-<%@ page import="model.Categoria" %>
-<%@ page import="model.Carrello" %>
-<%@ page import="model.DettaglioCarrello" %>
-<%@ page import="java.util.List" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
-<%
-    Utente utenteHeader = (Utente) session.getAttribute("utente");
-    List<Categoria> categorieHeader = (List<Categoria>) request.getAttribute("categorie");
-
-    Integer carrelloCount = (Integer) request.getAttribute("carrelloCount");
-    if (carrelloCount == null) {
-        carrelloCount = 0;
-        Carrello guestCartHeader = (Carrello) session.getAttribute("guestCart");
-        if (guestCartHeader != null && guestCartHeader.getArticoli() != null) {
-            for (DettaglioCarrello dettaglioHeader : guestCartHeader.getArticoli()) {
-                carrelloCount += dettaglioHeader.getQuantita();
-            }
-        }
-    }
-%>
 <header>
     <div class="top-strip">
         <div class="container top-strip-inner">
@@ -31,115 +12,112 @@
     <div class="main-header">
         <div class="container main-header-inner">
             <div class="logo-area">
-                <button class="hamburger-btn" type="button" onclick="toggleMobileMenu()">☰</button>
+                <button class="hamburger-btn" type="button" onclick="toggleMobileMenu()" aria-label="Apri menu">☰</button>
 
-                <a href="<%= request.getContextPath() %>/">
-                    <img src="<%= request.getContextPath() %>/images/Logo.png"
+                <a href="${pageContext.request.contextPath}/">
+                    <img src="${pageContext.request.contextPath}/images/Logo.png"
                          alt="CRTLMOTO Logo"
                          class="site-logo">
                 </a>
             </div>
 
-            <form class="main-search" action="<%= request.getContextPath() %>/catalogo" method="get">
-                <input type="text" name="q" placeholder="Cerca prodotti, caschi, ricambi, accessori...">
+            <form class="main-search" action="${pageContext.request.contextPath}/catalogo" method="get">
+                <label class="sr-only" for="header-search">Cerca prodotti</label>
+                <input id="header-search" type="text" name="q" placeholder="Cerca prodotti, caschi, ricambi, accessori...">
                 <button type="submit">Cerca</button>
             </form>
 
             <div class="header-icons">
-                <% if (utenteHeader == null) { %>
-                <a href="<%= request.getContextPath() %>/login">Login</a>
-                <a href="<%= request.getContextPath() %>/register">Registrati</a>
-
-                <a href="<%= request.getContextPath() %>/carrello" class="cart-link" aria-label="Carrello">
-                    <span class="cart-icon">🛒</span>
-                    <span class="cart-text">Carrello</span>
-                    <% if (carrelloCount > 0) { %>
-                    <span class="cart-badge"><%= carrelloCount %></span>
-                    <% } %>
-                </a>
-                <% } else { %>
-                <a href="<%= request.getContextPath() %>/profilo">Profilo</a>
-                <% if (!"admin".equalsIgnoreCase(utenteHeader.getRuolo())){ %>
-                <a href="<%= request.getContextPath() %>/garage">Garage</a>
-                <a href="<%= request.getContextPath() %>/i-miei-ordini">Ordini</a>
-
-                <a href="<%= request.getContextPath() %>/carrello" class="cart-link" aria-label="Carrello">
-                    <span class="cart-icon">🛒</span>
-                    <span class="cart-text">Carrello</span>
-                    <% if (carrelloCount > 0) { %>
-                    <span class="cart-badge"><%= carrelloCount %></span>
-                    <% } %>
-                </a>
-                <% } %>
-                <% if ("admin".equalsIgnoreCase(utenteHeader.getRuolo())) { %>
-                <a href="<%= request.getContextPath() %>/admin/prodotti">Admin</a>
-                <% } %>
-
-                <a href="<%= request.getContextPath() %>/logout">Logout</a>
-                <% } %>
+                <c:choose>
+                    <c:when test="${empty sessionScope.utente}">
+                        <a href="${pageContext.request.contextPath}/login">Login</a>
+                        <a href="${pageContext.request.contextPath}/register">Registrati</a>
+                        <a href="${pageContext.request.contextPath}/carrello" class="cart-link" aria-label="Carrello">
+                            <span class="cart-icon" aria-hidden="true">🛒</span>
+                            <span class="cart-text">Carrello</span>
+                            <c:if test="${carrelloCount > 0}">
+                                <span class="cart-badge"><c:out value="${carrelloCount}" /></span>
+                            </c:if>
+                        </a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="${pageContext.request.contextPath}/profilo">Profilo</a>
+                        <c:choose>
+                            <c:when test="${sessionScope.utente.ruolo eq 'admin'}">
+                                <a href="${pageContext.request.contextPath}/admin/prodotti">Admin</a>
+                            </c:when>
+                            <c:otherwise>
+                                <a href="${pageContext.request.contextPath}/garage">Garage</a>
+                                <a href="${pageContext.request.contextPath}/i-miei-ordini">Ordini</a>
+                                <a href="${pageContext.request.contextPath}/carrello" class="cart-link" aria-label="Carrello">
+                                    <span class="cart-icon" aria-hidden="true">🛒</span>
+                                    <span class="cart-text">Carrello</span>
+                                    <c:if test="${carrelloCount > 0}">
+                                        <span class="cart-badge"><c:out value="${carrelloCount}" /></span>
+                                    </c:if>
+                                </a>
+                            </c:otherwise>
+                        </c:choose>
+                        <a href="${pageContext.request.contextPath}/logout">Logout</a>
+                    </c:otherwise>
+                </c:choose>
             </div>
         </div>
     </div>
 
     <nav class="main-nav desktop-nav">
         <div class="container nav-inner">
-            <a href="<%= request.getContextPath() %>/">Home</a>
-            <a href="<%= request.getContextPath() %>/catalogo">Tutti i prodotti</a>
+            <a href="${pageContext.request.contextPath}/">Home</a>
+            <a href="${pageContext.request.contextPath}/catalogo">Tutti i prodotti</a>
 
-            <%
-                if (categorieHeader != null) {
-                    for (Categoria c : categorieHeader) {
-            %>
-            <a href="<%= request.getContextPath() %>/catalogo?categoria=<%= c.getIdCategoria() %>">
-                <%= c.getNomeCategoria() %>
-            </a>
-            <%
-                    }
-                }
-            %>
+            <c:forEach var="c" items="${categorie}">
+                <a href="${pageContext.request.contextPath}/catalogo?categoria=${c.idCategoria}">
+                    <c:out value="${c.nomeCategoria}" />
+                </a>
+            </c:forEach>
 
-            <a href="<%= request.getContextPath() %>/catalogo">Offerte</a>
+            <a href="${pageContext.request.contextPath}/catalogo">Offerte</a>
         </div>
     </nav>
 
-    <div id="mobileMenuOverlay" class="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
+    <button id="mobileMenuOverlay" class="mobile-menu-overlay" type="button" onclick="closeMobileMenu()" aria-label="Chiudi menu"></button>
 
-    <nav id="mobileMenu" class="mobile-menu">
+    <nav id="mobileMenu" class="mobile-menu" aria-label="Menu principale">
         <div class="mobile-menu-header">
             <span>Menu</span>
-            <button type="button" onclick="closeMobileMenu()">×</button>
+            <button type="button" onclick="closeMobileMenu()" aria-label="Chiudi menu">×</button>
         </div>
 
-        <a href="<%= request.getContextPath() %>/">Home</a>
-        <a href="<%= request.getContextPath() %>/catalogo">Tutti i prodotti</a>
+        <a href="${pageContext.request.contextPath}/">Home</a>
+        <a href="${pageContext.request.contextPath}/catalogo">Tutti i prodotti</a>
 
-        <%
-            if (categorieHeader != null) {
-                for (Categoria c : categorieHeader) {
-        %>
-        <a href="<%= request.getContextPath() %>/catalogo?categoria=<%= c.getIdCategoria() %>">
-            <%= c.getNomeCategoria() %>
-        </a>
-        <%
-                }
-            }
-        %>
+        <c:forEach var="c" items="${categorie}">
+            <a href="${pageContext.request.contextPath}/catalogo?categoria=${c.idCategoria}">
+                <c:out value="${c.nomeCategoria}" />
+            </a>
+        </c:forEach>
 
-        <% if (utenteHeader == null) { %>
-        <a href="<%= request.getContextPath() %>/login">Login</a>
-        <a href="<%= request.getContextPath() %>/register">Registrati</a>
-        <a href="<%= request.getContextPath() %>/carrello">Carrello</a>
-        <% } else { %>
-        <a href="<%= request.getContextPath() %>/profilo">Profilo</a>
-        <% if (!"admin".equalsIgnoreCase(utenteHeader.getRuolo())) { %>
-        <a href="<%= request.getContextPath() %>/garage">Garage</a>
-        <a href="<%= request.getContextPath() %>/i-miei-ordini">Ordini</a>
-        <a href="<%= request.getContextPath() %>/carrello">Carrello</a>
-        <% } else { %>
-        <a href="<%= request.getContextPath() %>/admin/prodotti">Admin</a>
-        <% } %>
-        <a href="<%= request.getContextPath() %>/logout">Logout</a>
-        <% } %>
+        <c:choose>
+            <c:when test="${empty sessionScope.utente}">
+                <a href="${pageContext.request.contextPath}/login">Login</a>
+                <a href="${pageContext.request.contextPath}/register">Registrati</a>
+                <a href="${pageContext.request.contextPath}/carrello">Carrello</a>
+            </c:when>
+            <c:otherwise>
+                <a href="${pageContext.request.contextPath}/profilo">Profilo</a>
+                <c:choose>
+                    <c:when test="${sessionScope.utente.ruolo eq 'admin'}">
+                        <a href="${pageContext.request.contextPath}/admin/prodotti">Admin</a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="${pageContext.request.contextPath}/garage">Garage</a>
+                        <a href="${pageContext.request.contextPath}/i-miei-ordini">Ordini</a>
+                        <a href="${pageContext.request.contextPath}/carrello">Carrello</a>
+                    </c:otherwise>
+                </c:choose>
+                <a href="${pageContext.request.contextPath}/logout">Logout</a>
+            </c:otherwise>
+        </c:choose>
     </nav>
 </header>
 

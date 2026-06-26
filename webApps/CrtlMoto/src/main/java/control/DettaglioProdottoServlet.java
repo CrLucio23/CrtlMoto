@@ -35,13 +35,14 @@ public class DettaglioProdottoServlet extends HttpServlet {
             int id = Integer.parseInt(idParam);
             Prodotto prodotto = prodottoDAO.findById(id);
 
-            if (prodotto == null) {
+            boolean admin = isAdmin(request);
+            if (prodotto == null || (!prodotto.isAttivo() && !admin)) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Prodotto non trovato");
                 return;
             }
 
             request.setAttribute("prodotto", prodotto);
-            request.setAttribute("admin", isAdmin(request));
+            request.setAttribute("admin", admin);
             request.setAttribute("mainImage", getMainImage(request, prodotto));
             request.setAttribute("galleryImages", getGalleryImages(request, prodotto));
             request.setAttribute("availabilityText", getAvailabilityText(prodotto));

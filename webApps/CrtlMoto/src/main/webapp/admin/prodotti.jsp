@@ -1,18 +1,14 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="java.util.List" %>
-<%@ page import="model.Prodotto" %>
-
-<%
-    List<Prodotto> prodotti = (List<Prodotto>) request.getAttribute("prodotti");
-%>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Prodotti - CRTLMOTO</title>
-    <link rel="icon" type="image/png" href="<%= request.getContextPath() %>/images/favicon.png">
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/css/base.css">
+    <link rel="icon" type="image/png" href="${pageContext.request.contextPath}/images/favicon.png">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/base.css">
 </head>
 <body>
 
@@ -23,8 +19,8 @@
         <h1 class="section-title">Admin - Prodotti</h1>
 
         <div style="margin-bottom:20px;">
-            <a class="btn btn-primary" href="<%= request.getContextPath() %>/admin/prodotti?action=new">Nuovo prodotto</a>
-            <a class="btn btn-dark" href="<%= request.getContextPath() %>/admin/ordini">Gestisci ordini</a>
+            <a class="btn btn-primary" href="${pageContext.request.contextPath}/admin/prodotti?action=new">Nuovo prodotto</a>
+            <a class="btn btn-dark" href="${pageContext.request.contextPath}/admin/ordini">Gestisci ordini</a>
         </div>
 
         <div class="form-box" style="max-width:100%;">
@@ -36,38 +32,42 @@
                     <th style="padding:12px;">Prezzo</th>
                     <th style="padding:12px;">Sconto</th>
                     <th style="padding:12px;">Magazzino</th>
+                    <th style="padding:12px;">Stato</th>
                     <th style="padding:12px;">Azioni</th>
                 </tr>
                 </thead>
                 <tbody>
-                <%
-                    if (prodotti != null) {
-                        for (Prodotto p : prodotti) {
-                %>
-                <tr style="border-bottom:1px solid #eee;">
-                    <td style="padding:12px;"><%= p.getIdProdotto() %></td>
-                    <td style="padding:12px;"><%= p.getNomeProdotto() %></td>
-                    <td style="padding:12px;">€ <%= p.getPrezzoBase() %></td>
-                    <td style="padding:12px;"><%= p.getScontoPercentuale() %>%</td>
-                    <td style="padding:12px;"><%= p.getQuantitaMagazzino() %></td>
-                    <td style="padding:12px; display:flex; gap:8px; flex-wrap:wrap;">
-                        <a class="btn btn-dark" href="<%= request.getContextPath() %>/admin/prodotti?action=edit&id=<%= p.getIdProdotto() %>">Modifica</a>
-                        <a class="btn btn-dark" href="<%= request.getContextPath() %>/admin/immagini-prodotto?idProdotto=<%= p.getIdProdotto() %>">Immagini</a>
+                <c:forEach var="p" items="${prodotti}">
+                    <tr style="border-bottom:1px solid #eee;">
+                        <td style="padding:12px;"><c:out value="${p.idProdotto}" /></td>
+                        <td style="padding:12px;"><c:out value="${p.nomeProdotto}" /></td>
+                        <td style="padding:12px;">&euro; <c:out value="${p.prezzoBase}" /></td>
+                        <td style="padding:12px;"><c:out value="${p.scontoPercentuale}" />%</td>
+                        <td style="padding:12px;"><c:out value="${p.quantitaMagazzino}" /></td>
+                        <td style="padding:12px;">
+                            <c:choose>
+                                <c:when test="${p.attivo}">Attivo</c:when>
+                                <c:otherwise>Disattivato</c:otherwise>
+                            </c:choose>
+                        </td>
+                        <td style="padding:12px; display:flex; gap:8px; flex-wrap:wrap;">
+                            <a class="btn btn-dark" href="${pageContext.request.contextPath}/admin/prodotti?action=edit&id=${p.idProdotto}">Modifica</a>
+                            <a class="btn btn-dark" href="${pageContext.request.contextPath}/admin/immagini-prodotto?idProdotto=${p.idProdotto}">Immagini</a>
 
-                        <form action="<%= request.getContextPath() %>/admin/prodotti" method="post">
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="id" value="<%= p.getIdProdotto() %>">
-                            <button type="submit"
-                                    class="btn btn-primary"
-                                    onclick="return confirm('ATTENZIONE: elimini definitivamente il prodotto. Continuare?')">
-                                Elimina
-                            </button>                        </form>
-                    </td>
-                </tr>
-                <%
-                        }
-                    }
-                %>
+                            <c:if test="${p.attivo}">
+                                <form action="${pageContext.request.contextPath}/admin/prodotti" method="post">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="id" value="${p.idProdotto}">
+                                    <button type="submit"
+                                            class="btn btn-primary"
+                                            onclick="return confirm('Il prodotto verra disattivato e nascosto dal catalogo. Continuare?')">
+                                        Disattiva
+                                    </button>
+                                </form>
+                            </c:if>
+                        </td>
+                    </tr>
+                </c:forEach>
                 </tbody>
             </table>
         </div>

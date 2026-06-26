@@ -6,9 +6,9 @@ import java.sql.SQLException;
 
 public class DBManager {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/crtlmoto?serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASSWORD = "root123";
+    private static final String DEFAULT_URL = "jdbc:mysql://localhost:3306/crtlmoto?serverTimezone=UTC";
+    private static final String DEFAULT_USER = "root";
+    private static final String DEFAULT_PASSWORD = "root123";
 
     static {
         try {
@@ -19,6 +19,14 @@ public class DBManager {
     }
 
     public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+        String url = getEnvOrDefault("CRTLMOTO_DB_URL", DEFAULT_URL);
+        String user = getEnvOrDefault("CRTLMOTO_DB_USER", DEFAULT_USER);
+        String password = getEnvOrDefault("CRTLMOTO_DB_PASSWORD", DEFAULT_PASSWORD);
+        return DriverManager.getConnection(url, user, password);
+    }
+
+    private static String getEnvOrDefault(String name, String defaultValue) {
+        String value = System.getenv(name);
+        return value == null || value.isBlank() ? defaultValue : value;
     }
 }

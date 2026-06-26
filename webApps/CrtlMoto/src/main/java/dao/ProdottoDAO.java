@@ -13,7 +13,25 @@ public class ProdottoDAO {
 
     public List<Prodotto> findAll() throws SQLException {
         List<Prodotto> prodotti = new ArrayList<>();
-        String sql = "SELECT * FROM Prodotto ORDER BY id_prodotto DESC";
+        String sql = "SELECT * FROM Prodotto WHERE attivo = TRUE ORDER BY id_prodotto DESC";
+
+        try (Connection con = DBManager.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Prodotto p = mapRow(rs);
+                p.setImmagini(immagineProdottoDAO.findByProdotto(p.getIdProdotto()));
+                prodotti.add(p);
+            }
+        }
+
+        return prodotti;
+    }
+
+    public List<Prodotto> findAllForAdmin() throws SQLException {
+        List<Prodotto> prodotti = new ArrayList<>();
+        String sql = "SELECT * FROM Prodotto ORDER BY attivo DESC, id_prodotto DESC";
 
         try (Connection con = DBManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -51,7 +69,7 @@ public class ProdottoDAO {
 
     public List<Prodotto> findByCategoria(int idCategoria) throws SQLException {
         List<Prodotto> prodotti = new ArrayList<>();
-        String sql = "SELECT * FROM Prodotto WHERE id_categoria = ? ORDER BY id_prodotto DESC";
+        String sql = "SELECT * FROM Prodotto WHERE id_categoria = ? AND attivo = TRUE ORDER BY id_prodotto DESC";
 
         try (Connection con = DBManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -72,7 +90,7 @@ public class ProdottoDAO {
 
     public List<Prodotto> searchByNome(String nome) throws SQLException {
         List<Prodotto> prodotti = new ArrayList<>();
-        String sql = "SELECT * FROM Prodotto WHERE LOWER(nome_prodotto) LIKE ? ORDER BY id_prodotto DESC";
+        String sql = "SELECT * FROM Prodotto WHERE LOWER(nome_prodotto) LIKE ? AND attivo = TRUE ORDER BY id_prodotto DESC";
 
         try (Connection con = DBManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -131,7 +149,7 @@ public class ProdottoDAO {
     }
 
     public void update(Prodotto prodotto) throws SQLException {
-        String sql = "UPDATE Prodotto SET nome_prodotto=?, descrizione=?, prezzo_base=?, sconto_percentuale=?, quantita_magazzino=?, taglia=?, colore=?, compatibilita=?, id_categoria=?, id_marca=? WHERE id_prodotto=?";
+        String sql = "UPDATE Prodotto SET nome_prodotto=?, descrizione=?, prezzo_base=?, sconto_percentuale=?, quantita_magazzino=?, taglia=?, colore=?, compatibilita=?, id_categoria=?, id_marca=?, attivo=? WHERE id_prodotto=?";
 
         try (Connection con = DBManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -157,13 +175,14 @@ public class ProdottoDAO {
                 ps.setNull(10, Types.INTEGER);
             }
 
-            ps.setInt(11, prodotto.getIdProdotto());
+            ps.setBoolean(11, prodotto.isAttivo());
+            ps.setInt(12, prodotto.getIdProdotto());
             ps.executeUpdate();
         }
     }
 
     public void delete(int idProdotto) throws SQLException {
-        String sql = "DELETE FROM Prodotto WHERE id_prodotto = ?";
+        String sql = "UPDATE Prodotto SET attivo = FALSE WHERE id_prodotto = ?";
 
         try (Connection con = DBManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -184,6 +203,7 @@ public class ProdottoDAO {
         p.setTaglia(rs.getString("taglia"));
         p.setColore(rs.getString("colore"));
         p.setCompatibilita(rs.getString("compatibilita"));
+        p.setAttivo(rs.getBoolean("attivo"));
 
         int idCategoria = rs.getInt("id_categoria");
         p.setIdCategoria(rs.wasNull() ? null : idCategoria);
@@ -195,7 +215,7 @@ public class ProdottoDAO {
     }
     public List<Prodotto> findLatest(int limit) throws SQLException {
         List<Prodotto> prodotti = new ArrayList<>();
-        String sql = "SELECT * FROM Prodotto ORDER BY id_prodotto DESC LIMIT ?";
+        String sql = "SELECT * FROM Prodotto WHERE attivo = TRUE ORDER BY id_prodotto DESC LIMIT ?";
 
         try (Connection con = DBManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -216,7 +236,7 @@ public class ProdottoDAO {
 
     public List<Prodotto> findDiscounted(int limit) throws SQLException {
         List<Prodotto> prodotti = new ArrayList<>();
-        String sql = "SELECT * FROM Prodotto WHERE sconto_percentuale > 0 ORDER BY sconto_percentuale DESC, id_prodotto DESC LIMIT ?";
+        String sql = "SELECT * FROM Prodotto WHERE sconto_percentuale > 0 AND attivo = TRUE ORDER BY sconto_percentuale DESC, id_prodotto DESC LIMIT ?";
 
         try (Connection con = DBManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {

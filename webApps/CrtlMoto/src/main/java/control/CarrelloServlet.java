@@ -77,6 +77,12 @@ public class CarrelloServlet extends HttpServlet {
                     ? Integer.parseInt(quantitaParam)
                     : 1;
 
+            if (("add".equalsIgnoreCase(action) || "update".equalsIgnoreCase(action))
+                    && !isQuantityAllowed(idProdotto, quantita)) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Quantita prodotto non valida o non disponibile");
+                return;
+            }
+
             if ("add".equalsIgnoreCase(action)) {
                 if (utente == null) {
                     addGuestProduct(request.getSession(), idProdotto, quantita);
@@ -140,7 +146,7 @@ public class CarrelloServlet extends HttpServlet {
         }
 
         Prodotto prodotto = prodottoDAO.findById(idProdotto);
-        if (prodotto == null) {
+        if (prodotto == null || !prodotto.isAttivo()) {
             throw new SQLException("Prodotto non trovato.");
         }
 
@@ -149,6 +155,15 @@ public class CarrelloServlet extends HttpServlet {
         dettaglio.setProdotto(prodotto);
         dettaglio.setQuantita(quantita);
         carrello.getArticoli().add(dettaglio);
+    }
+
+    private boolean isQuantityAllowed(int idProdotto, int quantita) throws SQLException {
+        if (quantita <= 0) {
+            return true;
+        }
+
+        Prodotto prodotto = prodottoDAO.findById(idProdotto);
+        return prodotto != null && prodotto.isAttivo() && quantita <= prodotto.getQuantitaMagazzino();
     }
 
     private void updateGuestQuantity(HttpSession session, int idProdotto, int quantita) {

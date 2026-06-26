@@ -71,6 +71,15 @@ button {
     cursor: pointer;
 }
 
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--red);
+    outline-offset: 3px;
+}
+
 .container {
     width: min(92%, var(--container));
     margin: 0 auto;
@@ -1338,6 +1347,7 @@ table td {
 .mobile-menu-overlay {
     position: fixed;
     inset: 0;
+    border: 0;
     background: rgba(0, 0, 0, 0.45);
     z-index: 9998;
     opacity: 0;

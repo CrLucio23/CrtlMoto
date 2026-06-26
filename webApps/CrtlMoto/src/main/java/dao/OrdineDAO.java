@@ -2,11 +2,22 @@ package dao;
 
 import model.Carrello;
 import model.DettaglioCarrello;
+import model.DettaglioOrdine;
+import model.ImmagineProdotto;
 import model.Ordine;
+import model.Prodotto;
 import utils.DBManager;
 
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 
 public class OrdineDAO {
 
@@ -34,13 +45,17 @@ public class OrdineDAO {
             BigDecimal totale = BigDecimal.ZERO;
 
             for (DettaglioCarrello dettaglio : carrello.getArticoli()) {
-                if (dettaglio.getProdotto() == null) {
+                Prodotto prodotto = dettaglio.getProdotto();
+                if (prodotto == null) {
                     throw new SQLException("Prodotto non trovato nel carrello.");
                 }
 
-                if (dettaglio.getQuantita() > dettaglio.getProdotto().getQuantitaMagazzino()) {
-                    throw new SQLException("Quantità non disponibile per il prodotto: " +
-                            dettaglio.getProdotto().getNomeProdotto());
+                if (!prodotto.isAttivo()) {
+                    throw new SQLException("Prodotto non piu disponibile: " + prodotto.getNomeProdotto());
+                }
+
+                if (dettaglio.getQuantita() > prodotto.getQuantitaMagazzino()) {
+                    throw new SQLException("Quantita non disponibile per il prodotto: " + prodotto.getNomeProdotto());
                 }
 
                 totale = totale.add(dettaglio.getSubtotale());
@@ -86,22 +101,28 @@ public class OrdineDAO {
                 }
             }
 
-            String sqlDettaglio = "INSERT INTO Dettaglio_Ordine(quantita, prezzo_acquisto, id_ordine, id_prodotto) VALUES (?, ?, ?, ?)";
-            String sqlUpdateStock = "UPDATE Prodotto SET quantita_magazzino = quantita_magazzino - ? WHERE id_prodotto = ?";
+            String sqlDettaglio = "INSERT INTO Dettaglio_Ordine(quantita, prezzo_acquisto, nome_prodotto_storico, immagine_prodotto_storica, id_ordine, id_prodotto) VALUES (?, ?, ?, ?, ?, ?)";
+            String sqlUpdateStock = "UPDATE Prodotto SET quantita_magazzino = quantita_magazzino - ? WHERE id_prodotto = ? AND attivo = TRUE AND quantita_magazzino >= ?";
 
             for (DettaglioCarrello dettaglio : carrello.getArticoli()) {
+                Prodotto prodotto = dettaglio.getProdotto();
                 try (PreparedStatement psDettaglio = con.prepareStatement(sqlDettaglio);
                      PreparedStatement psStock = con.prepareStatement(sqlUpdateStock)) {
 
                     psDettaglio.setInt(1, dettaglio.getQuantita());
-                    psDettaglio.setBigDecimal(2, dettaglio.getProdotto().getPrezzoScontato());
-                    psDettaglio.setInt(3, idOrdine);
-                    psDettaglio.setInt(4, dettaglio.getIdProdotto());
+                    psDettaglio.setBigDecimal(2, prodotto.getPrezzoScontato());
+                    psDettaglio.setString(3, prodotto.getNomeProdotto());
+                    psDettaglio.setString(4, getMainImageUrl(prodotto));
+                    psDettaglio.setInt(5, idOrdine);
+                    psDettaglio.setInt(6, dettaglio.getIdProdotto());
                     psDettaglio.executeUpdate();
 
                     psStock.setInt(1, dettaglio.getQuantita());
                     psStock.setInt(2, dettaglio.getIdProdotto());
-                    psStock.executeUpdate();
+                    psStock.setInt(3, dettaglio.getQuantita());
+                    if (psStock.executeUpdate() == 0) {
+                        throw new SQLException("Disponibilita prodotto cambiata durante il checkout.");
+                    }
                 }
             }
 
@@ -156,25 +177,8 @@ public class OrdineDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    Ordine ordine = new Ordine();
-                    ordine.setIdOrdine(rs.getInt("id_ordine"));
-                    ordine.setTotaleOrdine(rs.getBigDecimal("totale_ordine"));
-                    ordine.setStatoOrdine(rs.getString("stato_ordine"));
-                    ordine.setIndirizzoSpedizione(rs.getString("indirizzo_spedizione"));
-                    ordine.setIdUtente(rs.getInt("id_utente"));
-
-                    Timestamp ts = rs.getTimestamp("data_ordine");
-                    if (ts != null) {
-                        ordine.setDataOrdine(ts.toLocalDateTime());
-                    }
-
-                    try {
-                        int idCodice = rs.getInt("id_codice_sconto");
-                        ordine.setIdCodiceSconto(rs.wasNull() ? null : idCodice);
-                    } catch (SQLException e) {
-                        ordine.setIdCodiceSconto(null);
-                    }
-
+                    Ordine ordine = mapOrdine(rs);
+                    ordine.setDettagli(findDettagliByOrdineId(ordine.getIdOrdine()));
                     return ordine;
                 }
             }
@@ -182,8 +186,9 @@ public class OrdineDAO {
 
         return null;
     }
-    public java.util.List<model.Ordine> findByUtente(int idUtente) throws SQLException {
-        java.util.List<model.Ordine> ordini = new java.util.ArrayList<>();
+
+    public List<Ordine> findByUtente(int idUtente) throws SQLException {
+        List<Ordine> ordini = new ArrayList<>();
         String sql = "SELECT * FROM Ordine WHERE id_utente = ? ORDER BY data_ordine DESC";
 
         try (Connection con = DBManager.getConnection();
@@ -193,18 +198,8 @@ public class OrdineDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    model.Ordine ordine = new model.Ordine();
-                    ordine.setIdOrdine(rs.getInt("id_ordine"));
-                    ordine.setTotaleOrdine(rs.getBigDecimal("totale_ordine"));
-                    ordine.setStatoOrdine(rs.getString("stato_ordine"));
-                    ordine.setIndirizzoSpedizione(rs.getString("indirizzo_spedizione"));
-                    ordine.setIdUtente(rs.getInt("id_utente"));
-
-                    Timestamp ts = rs.getTimestamp("data_ordine");
-                    if (ts != null) {
-                        ordine.setDataOrdine(ts.toLocalDateTime());
-                    }
-
+                    Ordine ordine = mapOrdine(rs);
+                    ordine.setDettagli(findDettagliByOrdineId(ordine.getIdOrdine()));
                     ordini.add(ordine);
                 }
             }
@@ -213,8 +208,8 @@ public class OrdineDAO {
         return ordini;
     }
 
-    public java.util.List<model.Ordine> findAll() throws SQLException {
-        java.util.List<model.Ordine> ordini = new java.util.ArrayList<>();
+    public List<Ordine> findAll() throws SQLException {
+        List<Ordine> ordini = new ArrayList<>();
         String sql = "SELECT * FROM Ordine ORDER BY data_ordine DESC";
 
         try (Connection con = DBManager.getConnection();
@@ -222,23 +217,42 @@ public class OrdineDAO {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                model.Ordine ordine = new model.Ordine();
-                ordine.setIdOrdine(rs.getInt("id_ordine"));
-                ordine.setTotaleOrdine(rs.getBigDecimal("totale_ordine"));
-                ordine.setStatoOrdine(rs.getString("stato_ordine"));
-                ordine.setIndirizzoSpedizione(rs.getString("indirizzo_spedizione"));
-                ordine.setIdUtente(rs.getInt("id_utente"));
-
-                Timestamp ts = rs.getTimestamp("data_ordine");
-                if (ts != null) {
-                    ordine.setDataOrdine(ts.toLocalDateTime());
-                }
-
+                Ordine ordine = mapOrdine(rs);
+                ordine.setDettagli(findDettagliByOrdineId(ordine.getIdOrdine()));
                 ordini.add(ordine);
             }
         }
 
         return ordini;
+    }
+
+    public List<DettaglioOrdine> findDettagliByOrdineId(int idOrdine) throws SQLException {
+        List<DettaglioOrdine> dettagli = new ArrayList<>();
+        String sql = "SELECT * FROM Dettaglio_Ordine WHERE id_ordine = ? ORDER BY id_dettaglio_ordine";
+
+        try (Connection con = DBManager.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, idOrdine);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    DettaglioOrdine dettaglio = new DettaglioOrdine();
+                    dettaglio.setIdDettaglioOrdine(rs.getInt("id_dettaglio_ordine"));
+                    dettaglio.setQuantita(rs.getInt("quantita"));
+                    dettaglio.setPrezzoAcquisto(rs.getBigDecimal("prezzo_acquisto"));
+                    dettaglio.setNomeProdottoStorico(rs.getString("nome_prodotto_storico"));
+                    dettaglio.setImmagineProdottoStorica(rs.getString("immagine_prodotto_storica"));
+                    dettaglio.setIdOrdine(rs.getInt("id_ordine"));
+
+                    int idProdotto = rs.getInt("id_prodotto");
+                    dettaglio.setIdProdotto(rs.wasNull() ? null : idProdotto);
+                    dettagli.add(dettaglio);
+                }
+            }
+        }
+
+        return dettagli;
     }
 
     public void updateStatoOrdine(int idOrdine, String nuovoStato) throws SQLException {
@@ -251,5 +265,37 @@ public class OrdineDAO {
             ps.setInt(2, idOrdine);
             ps.executeUpdate();
         }
+    }
+
+    private Ordine mapOrdine(ResultSet rs) throws SQLException {
+        Ordine ordine = new Ordine();
+        ordine.setIdOrdine(rs.getInt("id_ordine"));
+        ordine.setTotaleOrdine(rs.getBigDecimal("totale_ordine"));
+        ordine.setStatoOrdine(rs.getString("stato_ordine"));
+        ordine.setIndirizzoSpedizione(rs.getString("indirizzo_spedizione"));
+        ordine.setIdUtente(rs.getInt("id_utente"));
+
+        Timestamp ts = rs.getTimestamp("data_ordine");
+        if (ts != null) {
+            ordine.setDataOrdine(ts.toLocalDateTime());
+        }
+
+        int idCodice = rs.getInt("id_codice_sconto");
+        ordine.setIdCodiceSconto(rs.wasNull() ? null : idCodice);
+        return ordine;
+    }
+
+    private String getMainImageUrl(Prodotto prodotto) {
+        if (prodotto.getImmagini() == null || prodotto.getImmagini().isEmpty()) {
+            return null;
+        }
+
+        for (ImmagineProdotto immagine : prodotto.getImmagini()) {
+            if (immagine.isPrincipale()) {
+                return immagine.getUrlImmagine();
+            }
+        }
+
+        return prodotto.getImmagini().get(0).getUrlImmagine();
     }
 }

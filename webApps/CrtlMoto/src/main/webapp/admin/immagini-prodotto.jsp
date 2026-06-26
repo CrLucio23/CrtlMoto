@@ -36,8 +36,8 @@
                 <input type="hidden" name="idProdotto" value="<%= prodotto != null ? prodotto.getIdProdotto() : "" %>">
 
                 <div class="form-group">
-                    <label>Immagine</label>
-                    <input type="file" name="immagine" accept="image/png,image/jpeg,image/webp,image/gif" required>
+                    <label for="immagine">Immagine</label>
+                    <input id="immagine" type="file" name="immagine" accept="image/png,image/jpeg,image/webp,image/gif" required>
                 </div>
 
                 <div class="form-group" style="display:flex; align-items:center; gap:14px; padding: 12px 0;">

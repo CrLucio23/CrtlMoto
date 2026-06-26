@@ -39,53 +39,53 @@
         <% } %>
 
         <div class="form-group">
-          <label>Nome prodotto</label>
-          <input type="text" name="nomeProdotto" value="<%= modifica ? prodotto.getNomeProdotto() : "" %>" required>
+          <label for="nomeProdotto">Nome prodotto</label>
+          <input id="nomeProdotto" type="text" name="nomeProdotto" value="<%= modifica ? prodotto.getNomeProdotto() : "" %>" required>
         </div>
 
         <div class="form-group">
-          <label>Descrizione</label>
-          <textarea name="descrizione" rows="5"><%= modifica && prodotto.getDescrizione() != null ? prodotto.getDescrizione() : "" %></textarea>
+          <label for="descrizione">Descrizione</label>
+          <textarea id="descrizione" name="descrizione" rows="5"><%= modifica && prodotto.getDescrizione() != null ? prodotto.getDescrizione() : "" %></textarea>
         </div>
 
         <div class="form-group">
-          <label>Prezzo base</label>
-          <input type="text" name="prezzoBase" value="<%= modifica ? prodotto.getPrezzoBase() : "" %>" required>
+          <label for="prezzoBase">Prezzo base</label>
+          <input id="prezzoBase" type="number" name="prezzoBase" min="0" step="0.01" value="<%= modifica ? prodotto.getPrezzoBase() : "" %>" required>
         </div>
 
         <div class="form-group">
-          <label>Sconto %</label>
-          <input type="number" name="scontoPercentuale" value="<%= modifica ? prodotto.getScontoPercentuale() : 0 %>">
+          <label for="scontoPercentuale">Sconto %</label>
+          <input id="scontoPercentuale" type="number" name="scontoPercentuale" min="0" max="100" value="<%= modifica ? prodotto.getScontoPercentuale() : 0 %>">
         </div>
 
         <div class="form-group">
-          <label>Quantità magazzino</label>
-          <input type="number" name="quantitaMagazzino" value="<%= modifica ? prodotto.getQuantitaMagazzino() : 0 %>">
+          <label for="quantitaMagazzino">Quantità magazzino</label>
+          <input id="quantitaMagazzino" type="number" name="quantitaMagazzino" min="0" value="<%= modifica ? prodotto.getQuantitaMagazzino() : 0 %>">
         </div>
 
         <div class="form-group">
-          <label>Taglia</label>
-          <input type="text" name="taglia" value="<%= modifica && prodotto.getTaglia() != null ? prodotto.getTaglia() : "" %>">
+          <label for="taglia">Taglia</label>
+          <input id="taglia" type="text" name="taglia" value="<%= modifica && prodotto.getTaglia() != null ? prodotto.getTaglia() : "" %>">
         </div>
 
         <div class="form-group">
-          <label>Colore</label>
-          <input type="text" name="colore" value="<%= modifica && prodotto.getColore() != null ? prodotto.getColore() : "" %>">
+          <label for="colore">Colore</label>
+          <input id="colore" type="text" name="colore" value="<%= modifica && prodotto.getColore() != null ? prodotto.getColore() : "" %>">
         </div>
 
         <div class="form-group">
-          <label>Compatibilità</label>
-          <textarea name="compatibilita" rows="3"><%= modifica && prodotto.getCompatibilita() != null ? prodotto.getCompatibilita() : "" %></textarea>
+          <label for="compatibilita">Compatibilità</label>
+          <textarea id="compatibilita" name="compatibilita" rows="3"><%= modifica && prodotto.getCompatibilita() != null ? prodotto.getCompatibilita() : "" %></textarea>
         </div>
 
         <div class="form-group">
-          <label>Foto prodotto</label>
-          <input type="file" name="immagine" accept="image/png,image/jpeg,image/webp,image/gif">
+          <label for="immagine">Foto prodotto</label>
+          <input id="immagine" type="file" name="immagine" accept="image/png,image/jpeg,image/webp,image/gif">
         </div>
 
         <div class="form-group">
-          <label>Categoria</label>
-          <select name="idCategoria">
+          <label for="idCategoria">Categoria</label>
+          <select id="idCategoria" name="idCategoria">
             <option value="">Seleziona categoria</option>
             <%
               if (categorie != null) {
@@ -104,8 +104,8 @@
         </div>
 
         <div class="form-group">
-          <label>Marca</label>
-          <select name="idMarca">
+          <label for="idMarca">Marca</label>
+          <select id="idMarca" name="idMarca">
             <option value="">Seleziona marca</option>
             <%
               if (marche != null) {

@@ -35,33 +35,33 @@
 
         <form action="<%= request.getContextPath() %>/profilo" method="post">
           <div class="form-group">
-            <label>Nome</label>
-            <input type="text" name="nome" value="<%= utente != null ? utente.getNome() : "" %>" required>
+            <label for="nome">Nome</label>
+            <input id="nome" type="text" name="nome" value="<%= utente != null ? utente.getNome() : "" %>" required>
           </div>
 
           <div class="form-group">
-            <label>Cognome</label>
-            <input type="text" name="cognome" value="<%= utente != null ? utente.getCognome() : "" %>" required>
+            <label for="cognome">Cognome</label>
+            <input id="cognome" type="text" name="cognome" value="<%= utente != null ? utente.getCognome() : "" %>" required>
           </div>
 
           <div class="form-group">
-            <label>Telefono</label>
-            <input type="text" name="telefono" value="<%= utente != null && utente.getTelefono() != null ? utente.getTelefono() : "" %>">
+            <label for="telefono">Telefono</label>
+            <input id="telefono" type="text" name="telefono" value="<%= utente != null && utente.getTelefono() != null ? utente.getTelefono() : "" %>">
           </div>
 
           <div class="form-group">
-            <label>Indirizzo</label>
-            <input type="text" name="indirizzo" value="<%= utente != null && utente.getIndirizzo() != null ? utente.getIndirizzo() : "" %>">
+            <label for="indirizzo">Indirizzo</label>
+            <input id="indirizzo" type="text" name="indirizzo" value="<%= utente != null && utente.getIndirizzo() != null ? utente.getIndirizzo() : "" %>">
           </div>
 
           <div class="form-group">
-            <label>Città</label>
-            <input type="text" name="citta" value="<%= utente != null && utente.getCitta() != null ? utente.getCitta() : "" %>">
+            <label for="citta">Città</label>
+            <input id="citta" type="text" name="citta" value="<%= utente != null && utente.getCitta() != null ? utente.getCitta() : "" %>">
           </div>
 
           <div class="form-group">
-            <label>CAP</label>
-            <input type="text" name="cap" value="<%= utente != null && utente.getCap() != null ? utente.getCap() : "" %>">
+            <label for="cap">CAP</label>
+            <input id="cap" type="text" name="cap" value="<%= utente != null && utente.getCap() != null ? utente.getCap() : "" %>">
           </div>
 
           <button type="submit" class="btn btn-primary">Aggiorna profilo</button>
@@ -75,18 +75,18 @@
           <input type="hidden" name="action" value="updatePassword">
 
           <div class="form-group">
-            <label>Password attuale</label>
-            <input type="password" name="passwordAttuale" required>
+            <label for="passwordAttuale">Password attuale</label>
+            <input id="passwordAttuale" type="password" name="passwordAttuale" required>
           </div>
 
           <div class="form-group">
-            <label>Nuova password</label>
-            <input type="password" name="nuovaPassword" required>
+            <label for="nuovaPassword">Nuova password</label>
+            <input id="nuovaPassword" type="password" name="nuovaPassword" required>
           </div>
 
           <div class="form-group">
-            <label>Conferma nuova password</label>
-            <input type="password" name="confermaPassword" required>
+            <label for="confermaPassword">Conferma nuova password</label>
+            <input id="confermaPassword" type="password" name="confermaPassword" required>
           </div>
 
           <button type="submit" class="btn btn-dark">Aggiorna password</button>

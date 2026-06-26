@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.Prodotto;
+import utils.ValidationUtils;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -30,7 +31,12 @@ public class CatalogoServlet extends HttpServlet {
             if (ricerca != null && !ricerca.isBlank()) {
                 prodotti = prodottoDAO.searchByNome(ricerca.trim());
             } else if (categoria != null && !categoria.isBlank()) {
-                prodotti = prodottoDAO.findByCategoria(Integer.parseInt(categoria));
+                Integer idCategoria = ValidationUtils.parseInteger(categoria);
+                if (idCategoria == null || idCategoria <= 0) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Categoria non valida");
+                    return;
+                }
+                prodotti = prodottoDAO.findByCategoria(idCategoria);
             } else {
                 prodotti = prodottoDAO.findAll();
             }

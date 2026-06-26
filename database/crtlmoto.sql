@@ -52,6 +52,7 @@ CREATE TABLE Prodotto (
     taglia VARCHAR(10),
     colore VARCHAR(30),
     compatibilita TEXT,
+    attivo BOOLEAN DEFAULT TRUE,
     id_categoria INT,
     id_marca INT,
     FOREIGN KEY (id_categoria) REFERENCES Categoria(id_categoria) ON DELETE SET NULL,
@@ -123,6 +124,8 @@ CREATE TABLE Dettaglio_Ordine (
     id_dettaglio_ordine INT AUTO_INCREMENT PRIMARY KEY,
     quantita INT NOT NULL,
     prezzo_acquisto DECIMAL(10,2) NOT NULL,
+    nome_prodotto_storico VARCHAR(150) NOT NULL,
+    immagine_prodotto_storica VARCHAR(500),
     id_ordine INT NOT NULL,
     id_prodotto INT NULL,
     FOREIGN KEY (id_ordine) REFERENCES Ordine(id_ordine) ON DELETE CASCADE,
@@ -358,16 +361,16 @@ INSERT INTO Ordine (data_ordine, totale_ordine, stato_ordine, indirizzo_spedizio
 -- =========================================================
 -- 12. DETTAGLIO ORDINE
 -- =========================================================
-INSERT INTO Dettaglio_Ordine (quantita, prezzo_acquisto, id_ordine, id_prodotto) VALUES
-(1, 170.99, 1, 1),
-(1, 98.99, 1, 5),
+INSERT INTO Dettaglio_Ordine (quantita, prezzo_acquisto, nome_prodotto_storico, immagine_prodotto_storica, id_ordine, id_prodotto) VALUES
+(1, 170.99, 'Casco AGV K1 S Nero Opaco', 'images/products/agv1.webp', 1, 1),
+(1, 98.99, 'Guanti Alpinestars SP-8 V3', 'images/products/Sp8.webp', 1, 5),
 
-(1, 119.20, 2, 10),
-(1, 40.00, 2, 20),
+(1, 119.20, 'Borsa Serbatoio Givi Tanklock', 'images/products/Givi.webp', 2, 10),
+(1, 40.00, 'Supporto Smartphone Oxford Cliqr', 'images/products/supporto.webp', 2, 20),
 
-(1, 699.00, 3, 16),
+(1, 699.00, 'Gilet Airbag Alpinestars Tech-Air 5', 'images/products/airbag.webp', 3, 16),
 
-(1, 239.90, 4, 12);
+(1, 239.90, 'Stivali RST Tractech Evo', 'images/products/RST.webp', 4, 12);
 
 -- =========================================================
 -- 13. PAGAMENTI

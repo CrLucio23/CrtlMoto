@@ -29,7 +29,11 @@ public class AdminImmaginiProdottoServlet extends HttpServlet {
             throws ServletException, IOException {
 
         try {
-            int idProdotto = Integer.parseInt(request.getParameter("idProdotto"));
+            Integer idProdotto = ValidationUtils.parseInteger(request.getParameter("idProdotto"));
+            if (idProdotto == null || idProdotto <= 0) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Prodotto non valido");
+                return;
+            }
             request.setAttribute("prodotto", prodottoDAO.findById(idProdotto));
             request.setAttribute("immagini", immagineProdottoDAO.findByProdotto(idProdotto));
             request.getRequestDispatcher("/admin/immagini-prodotto.jsp").forward(request, response);
@@ -75,16 +79,24 @@ public class AdminImmaginiProdottoServlet extends HttpServlet {
             }
 
             if ("delete".equalsIgnoreCase(action)) {
-                int idImmagine = Integer.parseInt(request.getParameter("idImmagine"));
-                int idProdotto = Integer.parseInt(request.getParameter("idProdotto"));
+                Integer idImmagine = ValidationUtils.parseInteger(request.getParameter("idImmagine"));
+                Integer idProdotto = ValidationUtils.parseInteger(request.getParameter("idProdotto"));
+                if (idImmagine == null || idImmagine <= 0 || idProdotto == null || idProdotto <= 0) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parametri immagine non validi");
+                    return;
+                }
                 immagineProdottoDAO.delete(idImmagine);
                 response.sendRedirect(request.getContextPath() + "/admin/immagini-prodotto?idProdotto=" + idProdotto);
                 return;
             }
 
             if ("setMain".equalsIgnoreCase(action)) {
-                int idImmagine = Integer.parseInt(request.getParameter("idImmagine"));
-                int idProdotto = Integer.parseInt(request.getParameter("idProdotto"));
+                Integer idImmagine = ValidationUtils.parseInteger(request.getParameter("idImmagine"));
+                Integer idProdotto = ValidationUtils.parseInteger(request.getParameter("idProdotto"));
+                if (idImmagine == null || idImmagine <= 0 || idProdotto == null || idProdotto <= 0) {
+                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Parametri immagine non validi");
+                    return;
+                }
                 immagineProdottoDAO.resetMainImage(idProdotto);
                 immagineProdottoDAO.setMainImage(idImmagine);
                 response.sendRedirect(request.getContextPath() + "/admin/immagini-prodotto?idProdotto=" + idProdotto);

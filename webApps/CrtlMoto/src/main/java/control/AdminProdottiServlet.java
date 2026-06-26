@@ -57,7 +57,7 @@ public class AdminProdottiServlet extends HttpServlet {
                 return;
             }
 
-            request.setAttribute("prodotti", prodottoDAO.findAll());
+            request.setAttribute("prodotti", prodottoDAO.findAllForAdmin());
             request.getRequestDispatcher("/admin/prodotti.jsp").forward(request, response);
 
         } catch (SQLException e) {

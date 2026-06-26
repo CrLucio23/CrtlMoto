@@ -8,6 +8,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
@@ -31,5 +32,20 @@ public class SecurityHeadersFilter implements Filter {
         }
 
         chain.doFilter(request, response);
+
+        HttpSession session = req.getSession(false);
+        if (session != null) {
+            StringBuilder cookie = new StringBuilder("JSESSIONID=")
+                    .append(session.getId())
+                    .append("; Path=")
+                    .append(req.getContextPath().isEmpty() ? "/" : req.getContextPath())
+                    .append("; HttpOnly; SameSite=Lax");
+
+            if (req.isSecure()) {
+                cookie.append("; Secure");
+            }
+
+            resp.setHeader("Set-Cookie", cookie.toString());
+        }
     }
 }

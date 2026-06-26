@@ -15,6 +15,7 @@ public class Prodotto {
     private String compatibilita;
     private Integer idCategoria;
     private Integer idMarca;
+    private boolean attivo = true;
     private List<ImmagineProdotto> immagini;
 
     public Prodotto() {}
@@ -105,6 +106,14 @@ public class Prodotto {
 
     public void setIdMarca(Integer idMarca) {
         this.idMarca = idMarca;
+    }
+
+    public boolean isAttivo() {
+        return attivo;
+    }
+
+    public void setAttivo(boolean attivo) {
+        this.attivo = attivo;
     }
 
     public List<ImmagineProdotto> getImmagini() {

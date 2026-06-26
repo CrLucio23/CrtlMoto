@@ -39,23 +39,23 @@
                     <% } %>
 
                     <div class="form-group">
-                        <label>Marca</label>
-                        <input type="text" name="marca" value="<%= modifica ? veicolo.getMarca() : "" %>" required>
+                        <label for="marca">Marca</label>
+                        <input id="marca" type="text" name="marca" value="<%= modifica ? veicolo.getMarca() : "" %>" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Modello</label>
-                        <input type="text" name="modello" value="<%= modifica ? veicolo.getModello() : "" %>" required>
+                        <label for="modello">Modello</label>
+                        <input id="modello" type="text" name="modello" value="<%= modifica ? veicolo.getModello() : "" %>" required>
                     </div>
 
                     <div class="form-group">
-                        <label>Anno</label>
-                        <input type="number" name="anno" value="<%= modifica && veicolo.getAnno() != null ? veicolo.getAnno() : "" %>">
+                        <label for="anno">Anno</label>
+                        <input id="anno" type="number" name="anno" min="1900" max="2100" value="<%= modifica && veicolo.getAnno() != null ? veicolo.getAnno() : "" %>">
                     </div>
 
                     <div class="form-group">
-                        <label>Cilindrata</label>
-                        <input type="text" name="cilindrata" value="<%= modifica && veicolo.getCilindrata() != null ? veicolo.getCilindrata() : "" %>">
+                        <label for="cilindrata">Cilindrata</label>
+                        <input id="cilindrata" type="text" name="cilindrata" value="<%= modifica && veicolo.getCilindrata() != null ? veicolo.getCilindrata() : "" %>">
                     </div>
 
                     <button type="submit" class="btn btn-primary"><%= modifica ? "Aggiorna veicolo" : "Aggiungi veicolo" %></button>

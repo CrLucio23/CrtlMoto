@@ -28,7 +28,7 @@ public class DisponibilitaProdottoServlet extends HttpServlet {
             int quantita = Integer.parseInt(request.getParameter("quantita"));
 
             Prodotto prodotto = prodottoDAO.findById(id);
-            if (prodotto == null) {
+            if (prodotto == null || !prodotto.isAttivo()) {
                 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
                 response.getWriter().write("{\"disponibile\":false,\"messaggio\":\"Prodotto non trovato\"}");
                 return;
